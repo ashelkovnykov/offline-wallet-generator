@@ -1,0 +1,57 @@
+allprojects {
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        maven { url "https://jitpack.io" }
+    }
+
+    // Put the build dir into the rootProject
+    buildDir = "../build/$name"
+
+    plugins.withType(JavaPlugin) {
+        tasks.withType(Test) {
+            useJUnit()
+
+            // Exclude tests (ex. gradle test -Pexclude=SomeTestClass)
+            def excludedTests = project.properties['exclude']
+            if (excludedTests) {
+                excludedTests.replaceAll('\\s', '').split('[,]').each {
+                    exclude "**/${it}.class"
+                }
+            }
+
+            afterSuite { desc, result ->
+                if (!desc.parent) {
+                    println ":${project.name} -- Executed ${result.testCount} tests: ${result.successfulTestCount} succeeded, ${result.failedTestCount} failed, ${result.skippedTestCount} skipped"
+                }
+            }
+
+            // Forward standard out from child JVMs to the console
+            testLogging {
+                showStackTraces = true
+                showStandardStreams = true
+                showExceptions = true
+                showCauses = true
+                displayGranularity = maxGranularity
+                exceptionFormat = 'full'
+            }
+
+            minHeapSize = "1G"
+            maxHeapSize = "4G"
+        }
+    }
+
+    idea {
+        module {
+            testSourceDirs += file('src/test/java')
+        }
+    }
+
+    // This task allows to get the dependencies from all the sub-project from the main photon-ml directory
+    // (otherwise, you have to change to each sub-project directory to get its dependencies)
+    task allDeps(type: DependencyReportTask) {}
+}
