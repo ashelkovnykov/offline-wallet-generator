@@ -102,6 +102,6 @@ public class MoneroWallet extends Wallet {
         int purpose = PURPOSE_44 | HARDENED;
         int coinCode = coin.getCode() | HARDENED;
 
-        return new int[] {purpose, 0};
+        return new int[] {purpose, coinCode, account | HARDENED};
     }
 }
