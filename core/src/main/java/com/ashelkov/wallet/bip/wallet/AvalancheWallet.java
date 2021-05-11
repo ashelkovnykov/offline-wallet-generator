@@ -79,6 +79,7 @@ public class AvalancheWallet extends Wallet {
                                                 .getPublicKeyPoint()
                                                 .getEncoded(true)))));
 
+        // TODO: Move to test
 //        byte[] test1 = new byte[] {(byte)0xf8, (byte)0x3e, (byte)0x0f, (byte)0x83, (byte)0xe0};
 //        logger.info(Arrays.toString(EncodingUtils.to5BitBytesSafe(test1)));
 //        byte[] test2 = new byte[] {(byte)0x07, (byte)0xc1, (byte)0xf0, (byte)0x7c, (byte)0x1f};

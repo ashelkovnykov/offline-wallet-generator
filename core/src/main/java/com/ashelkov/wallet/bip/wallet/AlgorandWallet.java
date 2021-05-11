@@ -1,6 +1,6 @@
 package com.ashelkov.wallet.bip.wallet;
 
-import com.algorand.algosdk.util.Digester;
+import com.ashelkov.wallet.bip.util.DigestUtils;
 import org.apache.commons.codec.binary.StringUtils;
 import org.stellar.sdk.KeyPair;
 
@@ -12,6 +12,7 @@ import com.ashelkov.wallet.bip.util.EncodingUtils;
 
 import static com.ashelkov.wallet.bip.Constants.HARDENED;
 import static com.ashelkov.wallet.bip.Constants.PURPOSE_44;
+import static com.ashelkov.wallet.bip.util.DigestUtils.SHA_512_256;
 
 public class AlgorandWallet extends Wallet {
 
@@ -62,7 +63,7 @@ public class AlgorandWallet extends Wallet {
         // TODO: Need better solution for this
         byte[] checksum;
         try {
-            checksum = Digester.digest(publicKey);
+            checksum = DigestUtils.digest(SHA_512_256, publicKey);
         } catch (Exception e) {
             checksum = new byte[0];
         }

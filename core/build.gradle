@@ -13,6 +13,7 @@ dependencies {
     implementation 'org.slf4j:slf4j-api:1.7.30'
     implementation 'org.slf4j:slf4j-jdk14:1.7.30'
     implementation 'org.web3j:core:5.0.0'
+    implementation 'net.i2p.crypto:eddsa:0.3.0'
 
     testImplementation 'junit:junit:4.13.2'
 }

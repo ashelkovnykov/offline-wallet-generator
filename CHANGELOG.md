@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Documentation
 - bin script so that you don't need to call "java -jar"
 - pre-compiled jar in bin
+- Separate API from CLI
+- Refactor imports
+- Export raw private/public keys
 
 ## [Unreleased]
 

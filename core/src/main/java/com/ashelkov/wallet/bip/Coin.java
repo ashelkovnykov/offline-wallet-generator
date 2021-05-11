@@ -12,6 +12,7 @@ public enum Coin {
     LTC(2),
     DOGE(3),
     ETH(60),
+    XMR(128),
     XRP(144),
     XLM(148),
     ALGO(283),

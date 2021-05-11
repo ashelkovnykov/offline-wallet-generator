@@ -13,6 +13,7 @@ public class WalletFactory {
             case LTC -> new LitecoinWallet(seed);
             case DOGE -> new DogecoinWallet(seed);
             case ETH -> new EthereumWallet(seed);
+            case XMR -> new MoneroWallet(seed);
             case XRP -> new RippleWallet(seed);
             case XLM -> new StellarWallet(seed);
             case ALGO -> new AlgorandWallet(seed);

@@ -60,12 +60,11 @@ public class Application {
             byte[] randomSeed = new byte[params.getEntropy() / 8];
             rng.nextBytes(randomSeed);
             mnemonic = MnemonicUtils.generateMnemonic(randomSeed);
-
         }
 
         byte[] seedFromMnemonic = MnemonicUtils.generateSeed(mnemonic, params.getMnemonicPassword());
 
-        // HERE
+        // Logging
         logger.trace(mnemonic);
 
         //

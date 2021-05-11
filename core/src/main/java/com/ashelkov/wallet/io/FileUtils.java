@@ -94,6 +94,7 @@ public class FileUtils {
                 writer.write(delim);
                 writer.write(address.getAddress());
             }
+            writer.write('\n');
 
             Files.setPosixFilePermissions(filePath, WALLET_FILE_PERMISSIONS);
 
