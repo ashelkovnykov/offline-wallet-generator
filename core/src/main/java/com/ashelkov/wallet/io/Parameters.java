@@ -121,7 +121,8 @@ final public class Parameters {
     @Parameter(
             names = {OPT_MNEMONIC_PASSWORD_S, OPT_MNEMONIC_PASSWORD_L},
             description = "Password for mnemonic used to generate wallet master key",
-            password = true)
+            password = true,
+            validateWith = PasswordValidator.class)
     private String mnemonicPassword;
 
     @Parameter(
