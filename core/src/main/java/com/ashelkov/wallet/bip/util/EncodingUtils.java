@@ -60,16 +60,16 @@ public class EncodingUtils {
             System.arraycopy(input, i, chunk, 0, MONERO_HOP);
             String chunk58 = base58Bitcoin(chunk);
 
-            result.append(chunk58);
             result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_LONG - chunk58.length()));
+            result.append(chunk58);
         }
 
         byte[] chunk = new byte[length - i];
         System.arraycopy(input, i, chunk, 0, length - i);
         String chunk58 = base58Bitcoin(chunk);
 
-        result.append(chunk58);
         result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_SHORT - chunk58.length()));
+        result.append(chunk58);
 
         return result.toString();
     }
