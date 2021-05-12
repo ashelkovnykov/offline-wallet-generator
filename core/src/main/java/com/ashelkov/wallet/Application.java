@@ -62,10 +62,14 @@ public class Application {
             mnemonic = MnemonicUtils.generateMnemonic(randomSeed);
         }
 
-        byte[] seedFromMnemonic = MnemonicUtils.generateSeed(mnemonic, params.getMnemonicPassword());
-
         // Logging
         logger.trace(mnemonic);
+
+        //
+        // Generate seed
+        //
+
+        byte[] seedFromMnemonic = MnemonicUtils.generateSeed(mnemonic, params.getMnemonicPassword());
 
         //
         // Generate wallet/addresses
