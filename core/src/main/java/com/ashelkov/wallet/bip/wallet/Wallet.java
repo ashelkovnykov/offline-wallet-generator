@@ -9,11 +9,9 @@ import com.ashelkov.wallet.bip.address.Bip44Address;
 public abstract class Wallet {
 
     protected final Coin coin;
-    protected final String coinName;
 
     protected Wallet(Coin coin) {
         this.coin = coin;
-        this.coinName = coin.toString();
     }
 
     protected static final Logger logger = LoggerFactory.getLogger(Wallet.class);
@@ -24,12 +22,20 @@ public abstract class Wallet {
     protected static final String CHANGE = "change";
     protected static final String INDEX = "address index";
 
-    protected static void logWarning(String path, String coin, int val) {
+    private static void logWarning(String path, String coin, int val) {
         logger.warn(String.format(UNUSED_BIP_PATH_MSG_BASE, path, coin, val));
     }
 
-    protected static void logMissing(String path, String coin) {
+    private static void logMissing(String path, String coin) {
         logger.info(String.format(MISSING_BIP_PATH_MSG_BASE, path, coin));
+    }
+
+    protected void logWarning(String path, int val) {
+        logWarning(path, coin.toString(), val);
+    }
+
+    protected void logMissing(String path) {
+        logMissing(path, coin.toString());
     }
 
     public abstract Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex);

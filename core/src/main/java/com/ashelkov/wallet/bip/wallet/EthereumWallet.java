@@ -26,13 +26,13 @@ public class EthereumWallet extends Wallet {
     public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
 
         if (account != null) {
-            logWarning(ACCOUNT, coinName, account);
+            logWarning(ACCOUNT, account);
         }
         if (change != null) {
-            logWarning(CHANGE, coinName, change);
+            logWarning(CHANGE, change);
         }
         if (addressIndex == null) {
-            logMissing(INDEX, coinName);
+            logMissing(INDEX);
             addressIndex = 0;
         }
 
