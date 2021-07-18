@@ -31,15 +31,15 @@ public class DogecoinWallet extends Wallet {
     public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
 
         if (account == null) {
-            logMissing(ACCOUNT, coinName);
+            logMissing(ACCOUNT);
             account = 0;
         }
         if (change == null) {
-            logMissing(CHANGE, coinName);
+            logMissing(CHANGE);
             change = 0;
         }
         if (addressIndex == null) {
-            logMissing(INDEX, coinName);
+            logMissing(INDEX);
             addressIndex = 0;
         }
 

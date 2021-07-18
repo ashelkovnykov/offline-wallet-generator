@@ -33,14 +33,14 @@ public class RippleWallet extends Wallet {
     public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
 
         if (account == null) {
-            logMissing(ACCOUNT, coinName);
+            logMissing(ACCOUNT);
             account = 0;
         }
         if (change != null) {
-            logWarning(CHANGE, coinName, change);
+            logWarning(CHANGE, change);
         }
         if (addressIndex != null) {
-            logWarning(INDEX, coinName, addressIndex);
+            logWarning(INDEX, addressIndex);
         }
 
         return getAddress(account);
