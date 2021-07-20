@@ -1,5 +1,8 @@
 package com.ashelkov.wallet.bip.wallet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Keys;
 
@@ -23,7 +26,7 @@ public class EthereumWallet extends Wallet {
     }
 
     @Override
-    public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
+    public List<Bip44Address> generateAddresses(Integer account, Integer change, Integer index, int numAddresses) {
 
         if (account != null) {
             logWarning(ACCOUNT, account);
@@ -31,22 +34,36 @@ public class EthereumWallet extends Wallet {
         if (change != null) {
             logWarning(CHANGE, change);
         }
-        if (addressIndex == null) {
+        if (index == null) {
             logMissing(INDEX);
-            addressIndex = 0;
+            index = 0;
         }
 
-        return getAddress(addressIndex);
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+
+        for(int i = index; i < (index + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
     @Override
-    public Bip44Address getDefaultAddress(int index) {
-        return getAddress(index);
+    public List<Bip44Address> generateDefaultAddresses(int numAddresses) {
+
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+        int index = 0;
+
+        for(int i = index; i < (index + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
-    private Bip44Address getAddress(int addressIndex) {
+    private Bip44Address getAddress(int index) {
 
-        int[] derivedKeyPath = getDerivedKeyPath(addressIndex);
+        int[] derivedKeyPath = getDerivedKeyPath(index);
         Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, derivedKeyPath);
 
         String address = Keys.toChecksumAddress(Keys.getAddress(derivedKeyPair));
@@ -55,13 +72,13 @@ public class EthereumWallet extends Wallet {
         return new EthereumAddress(address, bip44Path);
     }
 
-    private int[] getDerivedKeyPath(int addressIndex) {
+    private int[] getDerivedKeyPath(int index) {
 
         int purpose = PURPOSE_44 | HARDENED;
         int coinCode = coin.getCode() | HARDENED;
         int account = HARDENED; // 0 | 0x80000000
         int change = 0;
 
-        return new int[] {purpose, coinCode, account, change, addressIndex};
+        return new int[] {purpose, coinCode, account, change, index};
     }
 }

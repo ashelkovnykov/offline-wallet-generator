@@ -1,5 +1,8 @@
 package com.ashelkov.wallet.bip.wallet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ashelkov.wallet.bip.util.DigestUtils;
 import org.apache.commons.codec.binary.StringUtils;
 import org.stellar.sdk.KeyPair;
@@ -34,7 +37,7 @@ public class AlgorandWallet extends Wallet {
     }
 
     @Override
-    public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
+    public List<Bip44Address> generateAddresses(Integer account, Integer change, Integer index, int numAddresses) {
 
         if (account == null) {
             logMissing(ACCOUNT);
@@ -43,16 +46,30 @@ public class AlgorandWallet extends Wallet {
         if (change != null) {
             logWarning(CHANGE, change);
         }
-        if (addressIndex != null) {
-            logWarning(INDEX, addressIndex);
+        if (index != null) {
+            logWarning(INDEX, index);
         }
 
-        return getAddress(account);
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+
+        for(int i = account; i < (account + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
     @Override
-    public Bip44Address getDefaultAddress(int index) {
-        return getAddress(index);
+    public List<Bip44Address> generateDefaultAddresses(int numAddresses) {
+
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+        int account = 0;
+
+        for(int i = account; i < (account + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
     private Bip44Address getAddress(int account) {

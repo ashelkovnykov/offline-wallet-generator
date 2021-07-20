@@ -1,5 +1,7 @@
 package com.ashelkov.wallet.bip.wallet;
 
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +40,12 @@ public abstract class Wallet {
         logMissing(path, coin.toString());
     }
 
-    public abstract Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex);
+    public abstract List<Bip44Address> generateAddresses(
+            Integer account,
+            Integer change,
+            Integer index,
+            int numAddresses);
 
-    public abstract Bip44Address getDefaultAddress(int index);
+    public abstract List<Bip44Address> generateDefaultAddresses(int numAddresses);
 
 }

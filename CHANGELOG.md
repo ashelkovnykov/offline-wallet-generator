@@ -5,18 +5,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Upcoming]
+- Documentation
+- Pre-compiled jar in `lib
+- `bin` script so that you don't need to call "java -jar"`
 - Improve default filename
 - Add file overwrite option
-- Add 'display only' option
+- Add 'display on console' option
+- Export additional fields (xPub key for BTC, view keys for XMR)
+- Export raw private/public keys
 - Fix Logger messages from jar
-- Generate QR Codes
 - Tests
-- Documentation
-- bin script so that you don't need to call "java -jar"
-- pre-compiled jar in bin
 - Separate API from CLI
 - Refactor imports
-- Export raw private/public keys
+- Offline transactions
+- Generate QR Codes
 
 ## [Unreleased]
 
