@@ -1,4 +1,4 @@
-package com.ashelkov.wallet.io;
+package com.ashelkov.wallet.io.util;
 
 import java.io.BufferedWriter;
 import java.io.File;

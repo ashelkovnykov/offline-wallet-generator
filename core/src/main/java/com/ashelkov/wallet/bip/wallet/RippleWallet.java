@@ -1,5 +1,8 @@
 package com.ashelkov.wallet.bip.wallet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.stellar.sdk.KeyPair;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Hash;
@@ -30,7 +33,7 @@ public class RippleWallet extends Wallet {
     }
 
     @Override
-    public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
+    public List<Bip44Address> generateAddresses(Integer account, Integer change, Integer index, int numAddresses) {
 
         if (account == null) {
             logMissing(ACCOUNT);
@@ -39,16 +42,30 @@ public class RippleWallet extends Wallet {
         if (change != null) {
             logWarning(CHANGE, change);
         }
-        if (addressIndex != null) {
-            logWarning(INDEX, addressIndex);
+        if (index != null) {
+            logWarning(INDEX, index);
         }
 
-        return getAddress(account);
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+
+        for(int i = account; i < (account + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
     @Override
-    public Bip44Address getDefaultAddress(int index) {
-        return getAddress(index);
+    public List<Bip44Address> generateDefaultAddresses(int numAddresses) {
+
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+        int account = 0;
+
+        for(int i = account; i < (account + numAddresses); ++i) {
+            result.add(getAddress(i));
+        }
+
+        return result;
     }
 
     /**
@@ -84,9 +101,9 @@ public class RippleWallet extends Wallet {
         int purpose = PURPOSE_44 | HARDENED;
         int coinCode = coin.getCode() | HARDENED;
         int change = 0;
-        int addressIndex = 0;
+        int index = 0;
 
-        return new int[] {purpose, coinCode, account | HARDENED, change, addressIndex};
+        return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }
 
     private Bip44Address getAddressED25519(int account) {

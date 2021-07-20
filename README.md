@@ -35,48 +35,83 @@ java -jar ./build/core/libs/core.jar
 
 ### Usage
 
+The following documentation is displayed in the console when the wallet application is run with the `-h` or `--help`
+option:
+
 ```
-    -a, --account
-      Specific account for which to compute address (see BIP32)
-    -i, --address-index
-      Specific address index for which to compute address (see BIP32)
-    -g, --change
-      Specify whether address is a change address (see BIP32)
-    -c, --coin
-      Crypto currency code of coin for which to generate wallet
-      Possible Values: [BTC, LTC, DOGE, ETH, XRP, XLM, ALGO, AVAX]
+Usage: <main class> [options] [command] [command options]
+  Options:
     -m, --custom-mnemonic
       Custom mnemonic to use for generating wallets/addresses
     -e, --entropy
-      Number of bits of entropy for randomly generated seed (must be 128-256 &
+      Number of bits of entropy for randomly generated seed (must be 128-256 & 
       multiple of 32)
       Default: 256
     -h, --help
       Show this usage details page
-    -t, --hot
-      Generate hot wallet for imminent use with a wallet application (will
-      compute addresses for every supported coin type)
-      Default: false
     -p, --mnemonic-password
       Password for mnemonic used to generate wallet master key
-    -n, --num-addresses
-      Number of addresses to generate
-      Default: 1
     -d, --target-directory
       Output directory for generated wallet files
-      Default: ${home}/Wallets/${date}.wal
+      Default: /home/ashelkov/.wallets/2021-07-19.wal
+  Commands:
+    cold      Generate a wallet for a single cryptocurrency
+      Usage: cold [options]
+        Options:
+          -a, --account
+            BIP 44 account field for address
+          -i, --address-index
+            BIP 44 index field for address
+          -g, --change
+            BIP 44 change field for address
+        * -c, --coin
+            Crypto currency code of coin for which to generate wallet
+            Possible Values: [BTC, LTC, DOGE, ETH, XMR, XRP, XLM, ALGO, AVAX]
+          -n, --num-addresses
+            Number of addresses to generate
+            Default: 1
+
+    hot      Generate a wallet for multiple cryptocurrencies
+      Usage: hot
 ```
 
-#### Example
-Generate a cold wallet for dogecoin with 10 derived addresses.
+#### Examples
+
+Generate a cold wallet for the first 10 Dogecoin addresses, using a custom mnemonic and password:
 
 ```sh
 java -jar ./build/core/libs/core.jar \
 -d ~/.wallets/cold/doge.wal \
--c DOGE \
--n 10 \
 -m \
--p
+-p \
+cold \
+--coin=DOGE \
+-n=10
+```
+
+Generate a cold wallet for Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/0'/2'/1'/4'` using a random 12-word mnemonic
+and no password:
+
+```sh
+java -jar ./build/core/libs/core.jar \
+-d ~/.wallets/cold/btc.wal \
+-e 128 \
+cold \
+-c=BTC \
+--account=2 \
+--change=1 \
+--index=3 \
+--num-addresses=2
+```
+
+Generate a hot wallet file containing the default address for every supported coin:
+
+```sh
+java -jar ./build/core/libs/core.jar \
+-d ~/.wallets/hot.wal \
+-m \
+-p \
+hot
 ```
 
 ### Output

@@ -1,5 +1,8 @@
 package com.ashelkov.wallet.bip.wallet;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.bitcoinj.core.Bech32;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Hash;
@@ -28,7 +31,7 @@ public class LitecoinWallet extends Wallet {
     }
 
     @Override
-    public Bip44Address getSpecificAddress(Integer account, Integer change, Integer addressIndex) {
+    public List<Bip44Address> generateAddresses(Integer account, Integer change, Integer index, int numAddresses) {
 
         if (account == null) {
             logMissing(ACCOUNT);
@@ -38,22 +41,38 @@ public class LitecoinWallet extends Wallet {
             logMissing(CHANGE);
             change = 0;
         }
-        if (addressIndex == null) {
+        if (index == null) {
             logMissing(INDEX);
-            addressIndex = 0;
+            index = 0;
         }
 
-        return getAddress(account, change, addressIndex);
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+
+        for(int i = index; i < (index + numAddresses); ++i) {
+            result.add(getAddress(account, change, i));
+        }
+
+        return result;
     }
 
     @Override
-    public Bip44Address getDefaultAddress(int index) {
-        return getAddress(0, 0, index);
+    public List<Bip44Address> generateDefaultAddresses(int numAddresses) {
+
+        List<Bip44Address> result = new ArrayList<>(numAddresses);
+        int account = 0;
+        int change = 0;
+        int index = 0;
+
+        for(int i = index; i < (index + numAddresses); ++i) {
+            result.add(getAddress(account, change, i));
+        }
+
+        return result;
     }
 
-    private Bip44Address getAddress(int account, int change, int addressIndex) {
+    private Bip44Address getAddress(int account, int change, int index) {
 
-        int[] derivedKeyPath = getDerivedKeyPath(account, change, addressIndex);
+        int[] derivedKeyPath = getDerivedKeyPath(account, change, index);
         Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, derivedKeyPath);
 
         byte[] unencodedAddress = EncodingUtils.to5BitBytesSafe(
@@ -71,11 +90,11 @@ public class LitecoinWallet extends Wallet {
         return new LitecoinAddress(address, bip44Path);
     }
 
-    private int[] getDerivedKeyPath(int account, int change, int addressIndex) {
+    private int[] getDerivedKeyPath(int account, int change, int index) {
 
         int purpose = PURPOSE_84 | HARDENED;
         int coinCode = coin.getCode() | HARDENED;
 
-        return new int[] {purpose, coinCode, account | HARDENED, change, addressIndex};
+        return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }
 }
