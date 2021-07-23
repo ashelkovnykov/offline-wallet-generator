@@ -53,7 +53,7 @@ public class EncodingUtils {
         // TODO: Need check that input is exactly 65 bytes in length (though the current code should work for any length)
         int length = input.length;
         int hopLength = length - MONERO_HOP;
-        int i = 0;
+        int i;
 
         for (i = 0; i < hopLength; i += MONERO_HOP) {
             byte[] chunk = new byte[MONERO_HOP];

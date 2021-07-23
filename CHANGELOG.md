@@ -11,7 +11,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improve default filename
 - Add file overwrite option
 - Add 'display on console' option
-- Export additional fields (xPub key for BTC)
 - Export raw private/public keys
 - Add subaddresses for XMR
 - Fix Logger messages from jar
