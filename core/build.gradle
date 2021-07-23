@@ -19,7 +19,7 @@ dependencies {
 }
 
 // Class to run using 'run' task introduced by 'application' plugin
-mainClassName = "com.ashelkov.wallet.Application"
+mainClassName = "com.ashelkov.owg.Application"
 
 // Set Java logging settings
 run {

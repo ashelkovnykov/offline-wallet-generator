@@ -6,13 +6,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 - Documentation
-- Pre-compiled jar in `lib
+- Pre-compiled jar in `lib`
 - `bin` script so that you don't need to call "java -jar"`
 - Improve default filename
 - Add file overwrite option
 - Add 'display on console' option
-- Export additional fields (xPub key for BTC, view keys for XMR)
+- Export additional fields (xPub key for BTC)
 - Export raw private/public keys
+- Add subaddresses for XMR
 - Fix Logger messages from jar
 - Tests
 - Separate API from CLI
