@@ -62,9 +62,13 @@ Usage: <main class> [options] [command] [command options]
       Show this usage details page
     -p, --mnemonic-password
       Password for mnemonic used to generate wallet master key
-    -d, --target-directory
-      Output directory for generated wallet files
-      Default: /home/ashelkov/.wallets/2021-07-19.wal
+    -o, --output-location
+      Output directory or path for wallet file
+      Default: /home/ashelkov/.wallets
+    -w, --overwrite
+      Overwrite wallet if already exists?
+      Default: false
+
   Commands:
     cold      Generate a wallet for a single cryptocurrency
       Usage: cold [options]
@@ -92,7 +96,7 @@ Generate a cold wallet for the first 10 Dogecoin addresses, using a custom mnemo
 
 ```shell
 bin/owg.sh \
--d ~/.wallets/cold/doge.wal \
+-o ~/.wallets/cold/doge.wal \
 -m \
 -p \
 cold \
@@ -105,7 +109,7 @@ and no password:
 
 ```shell
 bin/owg.sh \
--d ~/.wallets/cold/btc.wal \
+-o ~/.wallets/cold/btc.wal \
 -e 128 \
 cold \
 -c=BTC \
@@ -119,7 +123,7 @@ Generate a hot wallet file containing the default address for every supported co
 
 ```shell
 bin/owg.sh \
--d ~/.wallets/hot.wal \
+-o ~/.wallets/hot.wal \
 -m \
 -p \
 hot
@@ -128,8 +132,9 @@ hot
 ### Output
 
 This tool generates the mnemonic, the specified address(es), and its/their BIP 44/84 path(s). Unless a custom name and
-location are specified, the wallet will be written to the following location (determined by operating system) with the
-name `DATE.wal`, where "DATE" is the current date.
+location are specified, the wallet will be written to one of the locations specified below, determined by operating
+system. The name of the file will be `{coin}.wal`, where `{coin}` is the cryptocurrency code of the wallet, if its a
+cold wallet. The name of the file will be `hot.wal` if its a hot wallet.
 
 #### Linux
 ```

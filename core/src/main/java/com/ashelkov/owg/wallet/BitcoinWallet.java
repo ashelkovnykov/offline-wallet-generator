@@ -21,6 +21,11 @@ public class BitcoinWallet extends ColdWallet {
     }
 
     @Override
+    public String identifier() {
+        return COIN.toString();
+    }
+
+    @Override
     public String toString() {
 
         StringBuilder result = new StringBuilder();

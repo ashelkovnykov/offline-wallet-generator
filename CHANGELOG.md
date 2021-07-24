@@ -6,8 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 - Documentation
-- Improve default filename
-- Add file overwrite option
 - Add 'display on console' option
 - Export raw private/public keys
 - Add subaddresses for XMR

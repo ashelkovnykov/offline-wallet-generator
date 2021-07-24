@@ -25,6 +25,18 @@ public class Application {
     private static final Params params = Params.getInstance();
     private static final SecureRandom rng = Utils.getSecureRandomInstance();
 
+    private static HotWallet generateHotWallet(byte[] seed) {
+
+        List<ColdWallet> subwallets = new ArrayList<>(Coin.values().length);
+
+        for (Coin coin : Coin.values()) {
+            WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(seed, coin);
+            subwallets.add(walletGenerator.generateDefaultWallet());
+        }
+
+        return new HotWallet(subwallets);
+    }
+
     public static void main(String[] args) {
 
         //
@@ -94,20 +106,8 @@ public class Application {
         // Output wallet/addresses to file
         //
 
-        logger.info(String.format("Attempting to save wallet to file '%s'", params.getOutputDirectory()));
+        logger.info(String.format("Attempting to save wallet to file '%s'", params.getOutputPath()));
 
-        FileUtils.saveWalletToFile(params.getOutputDirectory(), mnemonic, wallet);
-    }
-
-    private static HotWallet generateHotWallet(byte[] seed) {
-
-        List<ColdWallet> subwallets = new ArrayList<>(Coin.values().length);
-
-        for (Coin coin : Coin.values()) {
-            WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(seed, coin);
-            subwallets.add(walletGenerator.generateDefaultWallet());
-        }
-
-        return new HotWallet(subwallets);
+        FileUtils.saveWalletToFile(params.getOutputPath(), mnemonic, wallet, params.hasOverwrite());
     }
 }

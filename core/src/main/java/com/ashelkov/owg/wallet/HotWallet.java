@@ -4,10 +4,17 @@ import java.util.List;
 
 public class HotWallet extends Wallet {
 
+    private static final String ID = "hot";
+
     protected final List<ColdWallet> subwallets;
 
     public HotWallet(List<ColdWallet> subwallets) {
         this.subwallets = subwallets;
+    }
+
+    @Override
+    public String identifier() {
+        return ID;
     }
 
     @Override
