@@ -3,15 +3,15 @@ package com.ashelkov.owg.io;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.ashelkov.owg.io.command.ColdCommand;
-import com.ashelkov.owg.io.command.HotCommand;
-import com.ashelkov.owg.io.util.FileUtils;
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IntegerConverter;
-import com.beust.jcommander.converters.PathConverter;
 
 import com.ashelkov.owg.bip.Coin;
+import com.ashelkov.owg.io.command.ColdCommand;
+import com.ashelkov.owg.io.command.HotCommand;
+import com.ashelkov.owg.io.conversion.PathConverter;
+import com.ashelkov.owg.io.util.FileUtils;
 import com.ashelkov.owg.io.validation.*;
 
 /**
@@ -23,8 +23,11 @@ final public class Params {
     // CLI Parameter Constants
     //
 
-    private static final String OPT_OUTPUT_DIR_L = "--target-directory";
-    private static final String OPT_OUTPUT_DIR_S = "-d";
+    private static final String OPT_OUTPUT_LOCATION_L = "--output-location";
+    private static final String OPT_OUTPUT_LOCATION_S = "-o";
+
+    private static final String OPT_OVERWRITE_L = "--overwrite";
+    private static final String OPT_OVERWRITE_S = "-w";
 
     private static final String OPT_ENTROPY_L = "--entropy";
     private static final String OPT_ENTROPY_S = "-e";
@@ -50,10 +53,15 @@ final public class Params {
     //
 
     @Parameter(
-            names = {OPT_OUTPUT_DIR_S, OPT_OUTPUT_DIR_L},
-            description = "Output directory for generated wallet files",
+            names = {OPT_OUTPUT_LOCATION_S, OPT_OUTPUT_LOCATION_L},
+            description = "Output directory or path for wallet file",
             converter = PathConverter.class)
-    private Path outputDirectory = DEFAULT_OUTPUT_DIR;
+    private Path outputPath = DEFAULT_OUTPUT_DIR;
+
+    @Parameter(
+            names = {OPT_OVERWRITE_S, OPT_OVERWRITE_L},
+            description = "Overwrite wallet if already exists?")
+    private boolean overwrite = false;
 
     @Parameter(
             names = {OPT_ENTROPY_S, OPT_ENTROPY_L},
@@ -120,8 +128,12 @@ final public class Params {
     // Getters
     //
 
-    public Path getOutputDirectory() {
-        return outputDirectory;
+    public Path getOutputPath() {
+        return outputPath;
+    }
+
+    public boolean hasOverwrite() {
+        return overwrite;
     }
 
     public Integer getEntropy() {

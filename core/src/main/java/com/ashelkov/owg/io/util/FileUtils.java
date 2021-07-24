@@ -24,21 +24,20 @@ public class FileUtils {
     private static final Set<PosixFilePermission> WALLET_DIR_PERMISSIONS =
             PosixFilePermissions.fromString("rwxr-x---");
     private static final Set<PosixFilePermission> WALLET_FILE_PERMISSIONS =
-            PosixFilePermissions.fromString("rwx------");
+            PosixFilePermissions.fromString("rw-------");
+
+    private static final String OVERWRITE_ERROR = "Cannot write to path '%s'; file already exists";
 
     private static final String OSX_WALLET_DIR = String.format("Library%sWallets", File.separator);
     private static final String WINDOWS_WALLET_DIR = "Wallets";
     private static final String LINUX_WALLET_DIR = ".wallets";
 
     private static final String DEFAULT_FILE_EXT = "wal";
-    private static final String DEFAULT_FILE_NAME = String.format(
-            "%s.%s",
-            new java.sql.Date(System.currentTimeMillis()),
-            DEFAULT_FILE_EXT);
+    private static final String FILE_DELIMITER = ".";
 
-    private static void createDirectory(Path dir) {
+    public static void createDirectory(Path dir) {
         try {
-            Files.createDirectory(dir, PosixFilePermissions.asFileAttribute(WALLET_DIR_PERMISSIONS));
+            Files.createDirectories(dir, PosixFilePermissions.asFileAttribute(WALLET_DIR_PERMISSIONS));
         } catch (IOException e) {
             logger.error(e.getMessage());
             System.exit(1);
@@ -61,15 +60,28 @@ public class FileUtils {
             dir = LINUX_WALLET_DIR;
         }
 
-        return String.join(File.separator, root, dir, DEFAULT_FILE_NAME);
+        return String.join(File.separator, root, dir);
     }
 
-    public static void saveWalletToFile(Path filePath, String mnemonic, Wallet wallet) {
+    public static void saveWalletToFile(Path filePath, String mnemonic, Wallet wallet, boolean overwrite) {
 
-        // Check if directory exists - if not, create it
-        Path rootDir = filePath.getParent();
-        if (!Files.exists(rootDir)) {
-            createDirectory(rootDir);
+        if (Files.isDirectory(filePath)) {
+            if (!Files.exists(filePath)) {
+                createDirectory(filePath);
+            }
+
+            filePath = filePath.resolve(String.join(FILE_DELIMITER, wallet.identifier(), DEFAULT_FILE_EXT));
+
+        } else {
+            Path rootDir = filePath.getParent();
+            if (!Files.exists(rootDir)) {
+                createDirectory(rootDir);
+            }
+        }
+
+        if (Files.exists(filePath) && !overwrite) {
+            logger.error(String.format(OVERWRITE_ERROR, filePath));
+            System.exit(1);
         }
 
         try (BufferedWriter writer = Files.newBufferedWriter(filePath, US_ASCII)) {

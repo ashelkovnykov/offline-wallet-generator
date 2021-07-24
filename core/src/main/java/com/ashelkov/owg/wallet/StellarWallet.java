@@ -17,6 +17,11 @@ public class StellarWallet extends ColdWallet {
     }
 
     @Override
+    public String identifier() {
+        return COIN.toString();
+    }
+
+    @Override
     public String toString() {
 
         StringBuilder result = new StringBuilder();
