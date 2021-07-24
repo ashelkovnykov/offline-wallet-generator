@@ -12,7 +12,7 @@ Java is required to build and run this project.
 
 Clone this repo using the following command:
 
-```
+```shell
 git clone git@github.com:ashelkovnykov/offline-wallet-generator.git
 ```
 
@@ -29,8 +29,19 @@ TODO
 
 ## Running the Application
 
-```sh
-java -jar ./build/core/libs/core.jar
+The `lib` folder contains the latest release of the offline-wallet-generator application. In addition, the `bin` folder
+contains scripts for running the application without using the `java` command. To run the latest release version of the
+application, use the following command from the root folder:
+
+```shell
+bin/owg.sh
+```
+
+To run the latest unreleased version of the application (using the latest code), build the application from source and
+then run the following command:
+
+```shell
+bin/owg-local.sh
 ```
 
 ### Usage
@@ -79,8 +90,8 @@ Usage: <main class> [options] [command] [command options]
 
 Generate a cold wallet for the first 10 Dogecoin addresses, using a custom mnemonic and password:
 
-```sh
-java -jar ./build/core/libs/core.jar \
+```shell
+bin/owg.sh \
 -d ~/.wallets/cold/doge.wal \
 -m \
 -p \
@@ -92,8 +103,8 @@ cold \
 Generate a cold wallet for Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/0'/2'/1'/4'` using a random 12-word mnemonic
 and no password:
 
-```sh
-java -jar ./build/core/libs/core.jar \
+```shell
+bin/owg.sh \
 -d ~/.wallets/cold/btc.wal \
 -e 128 \
 cold \
@@ -106,8 +117,8 @@ cold \
 
 Generate a hot wallet file containing the default address for every supported coin:
 
-```sh
-java -jar ./build/core/libs/core.jar \
+```shell
+bin/owg.sh \
 -d ~/.wallets/hot.wal \
 -m \
 -p \
@@ -116,19 +127,21 @@ hot
 
 ### Output
 
-This tool generates the mnemonic, *n* addresses for either the selected coin or all coins if in hot-wallet mode, and the BIP 44/49/84 path for each address. Unless a `-d` flag is provided, output is written by default to:
+This tool generates the mnemonic, the specified address(es), and its/their BIP 44/84 path(s). Unless a custom name and
+location are specified, the wallet will be written to the following location (determined by operating system) with the
+name `DATE.wal`, where "DATE" is the current date.
 
 #### Linux
 ```
-$HOME/.wallets/$DATE.wal
+$HOME/.wallets/
 ```
 #### Mac
 ```
-$HOME/Library/Wallets/$DATE.wal
+$HOME/Library/Wallets/
 ```
 #### Windows
 ```
-%APPDATA%\%DATE%.wal
+%APPDATA%\
 ```
 
 ## Acknowledgements

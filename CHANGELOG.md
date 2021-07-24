@@ -6,8 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Upcoming]
 - Documentation
-- Pre-compiled jar in `lib`
-- `bin` script so that you don't need to call "java -jar"`
 - Improve default filename
 - Add file overwrite option
 - Add 'display on console' option
