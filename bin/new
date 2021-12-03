@@ -1,0 +1,3 @@
+COIN=$1
+WALLET_ID=$(date +%s)
+bin/owg-local.sh -o ~/.wallets/$COIN/$WALLET_ID -p cold -c $COIN
