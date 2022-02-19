@@ -102,6 +102,8 @@ public class FileUtils {
 
             Files.setPosixFilePermissions(filePath, WALLET_FILE_PERMISSIONS);
 
+            System.out.println("Saved wallet to " + filePath);
+
         } catch (IOException e) {
             logger.error(e.getMessage());
             System.exit(1);

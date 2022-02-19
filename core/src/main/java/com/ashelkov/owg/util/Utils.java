@@ -8,13 +8,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.LinuxSecureRandom;
 
-public class Utils {
+public final class Utils {
 
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
+    private static SecureRandom random;
 
     private Utils() {}
 
-    public static SecureRandom getSecureRandomInstance() {
+    private static void initSecureRandom() {
 
         // Preferred method for secure RNG on UNIX systems
         if (SystemUtils.IS_OS_UNIX) {
@@ -22,13 +23,22 @@ public class Utils {
         } else {
             // Attempt to use the strongest possible RNG available
             try {
-                return SecureRandom.getInstanceStrong();
+                random = SecureRandom.getInstanceStrong();
             } catch (NoSuchAlgorithmException e) {
                 logger.warn(e.getMessage());
             }
         }
 
         // Default to basic PRNG
-        return new SecureRandom();
+        random = new SecureRandom();
+    }
+
+    public static SecureRandom getSecureRandom() {
+
+        if (random == null) {
+            initSecureRandom();
+        }
+
+        return random;
     }
 }
