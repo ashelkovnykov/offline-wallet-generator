@@ -1,6 +1,5 @@
 package com.ashelkov.owg;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,11 +18,12 @@ import com.ashelkov.owg.wallet.Wallet;
 import com.ashelkov.owg.wallet.generators.WalletGenerator;
 import com.ashelkov.owg.wallet.generators.WalletGeneratorFactory;
 
-public class Application {
+public final class Application {
 
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
     private static final Params params = Params.getInstance();
-    private static final SecureRandom rng = Utils.getSecureRandomInstance();
+
+    private Application() {}
 
     private static HotWallet generateHotWallet(byte[] seed) {
 
@@ -38,6 +38,17 @@ public class Application {
     }
 
     public static void main(String[] args) {
+
+        //
+        // Setup
+        //
+
+        try {
+            java.util.logging.LogManager.getLogManager().readConfiguration(
+                    ClassLoader.getSystemClassLoader().getResourceAsStream("logging.properties"));
+        } catch(Exception e) {
+            System.err.println("Error loading logging properties; proceeding without logging");
+        }
 
         //
         // Parse input parameters
@@ -65,12 +76,9 @@ public class Application {
 
         } else {
             byte[] randomSeed = new byte[params.getEntropy() / 8];
-            rng.nextBytes(randomSeed);
+            Utils.getSecureRandom().nextBytes(randomSeed);
             mnemonic = MnemonicUtils.generateMnemonic(randomSeed);
         }
-
-        // Logging
-        logger.trace(mnemonic);
 
         //
         // Generate seed
