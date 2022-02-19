@@ -34,14 +34,14 @@ contains scripts for running the application without using the `java` command. T
 application, use the following command from the root folder:
 
 ```shell
-bin/owg.sh
+bin/release.sh
 ```
 
 To run the latest unreleased version of the application (using the latest code), build the application from source and
 then run the following command:
 
 ```shell
-bin/owg-local.sh
+bin/local.sh
 ```
 
 ### Usage
@@ -95,7 +95,7 @@ Usage: <main class> [options] [command] [command options]
 Generate a cold wallet for the first 10 Dogecoin addresses, using a custom mnemonic and password:
 
 ```shell
-bin/owg.sh \
+bin/release.sh \
 -o ~/.wallets/cold/doge.wal \
 -m \
 -p \
@@ -108,7 +108,7 @@ Generate a cold wallet for Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/0'/2
 and no password:
 
 ```shell
-bin/owg.sh \
+bin/release.sh \
 -o ~/.wallets/cold/btc.wal \
 -e 128 \
 cold \
@@ -122,7 +122,7 @@ cold \
 Generate a hot wallet file containing the default address for every supported coin:
 
 ```shell
-bin/owg.sh \
+bin/release.sh \
 -o ~/.wallets/hot.wal \
 -m \
 -p \
