@@ -1,17 +1,15 @@
 package com.ashelkov.owg.io.util;
 
 import java.io.BufferedWriter;
-import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
-import java.util.Date;
 import java.util.Set;
 
-import com.ashelkov.owg.wallet.Wallet;
-import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,92 +19,67 @@ public class FileUtils {
 
     private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
-    private static final Set<PosixFilePermission> WALLET_DIR_PERMISSIONS =
+    private static final Set<PosixFilePermission> DEFAULT_DIR_PERMISSIONS =
             PosixFilePermissions.fromString("rwxr-x---");
-    private static final Set<PosixFilePermission> WALLET_FILE_PERMISSIONS =
+    private static final Set<PosixFilePermission> DEFAULT_FILE_PERMISSIONS =
             PosixFilePermissions.fromString("rw-------");
 
-    private static final String OVERWRITE_ERROR = "Cannot write to path '%s'; file already exists";
-
-    private static final String OSX_WALLET_DIR = String.format("Library%sWallets", File.separator);
-    private static final String WINDOWS_WALLET_DIR = "Wallets";
-    private static final String LINUX_WALLET_DIR = ".wallets";
-
-    private static final String DEFAULT_FILE_EXT = "wal";
     private static final String FILE_DELIMITER = ".";
 
-    public static void createDirectory(Path dir) {
-        try {
-            Files.createDirectories(dir, PosixFilePermissions.asFileAttribute(WALLET_DIR_PERMISSIONS));
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            System.exit(1);
-        }
+    public static void createDirectory(Path dir)
+        throws IOException
+    {
+        createDirectory(dir, DEFAULT_DIR_PERMISSIONS);
     }
 
-    public static String getDefaultWalletDir() {
-
-        String root;
-        String dir;
-
-        if (SystemUtils.IS_OS_MAC_OSX) {
-            root = System.getProperty("user.home");
-            dir = OSX_WALLET_DIR;
-        } else if (SystemUtils.IS_OS_WINDOWS) {
-            root = System.getenv("APPDATA");
-            dir = WINDOWS_WALLET_DIR;
-        } else {
-            root = System.getProperty("user.home");
-            dir = LINUX_WALLET_DIR;
-        }
-
-        return String.join(File.separator, root, dir);
+    public static void createDirectory(Path dir, Set<PosixFilePermission> permissions)
+        throws IOException
+    {
+        Files.createDirectories(dir, PosixFilePermissions.asFileAttribute(permissions));
     }
 
-    public static void saveWalletToFile(Path filePath, String mnemonic, Wallet wallet, boolean overwrite) {
+    public static BufferedWriter getBufferedWriter(Path outputPath, boolean overwrite)
+            throws IOException {
 
-        if (Files.isDirectory(filePath)) {
-            if (!Files.exists(filePath)) {
-                createDirectory(filePath);
-            }
+        Path parentDir = outputPath.getParent();
 
-            filePath = filePath.resolve(String.join(FILE_DELIMITER, wallet.identifier(), DEFAULT_FILE_EXT));
-
-        } else {
-            Path rootDir = filePath.getParent();
-            if (!Files.exists(rootDir)) {
-                createDirectory(rootDir);
-            }
+        if (!Files.exists(parentDir)) {
+            FileUtils.createDirectory(parentDir);
+        } else if (Files.exists(outputPath) && !overwrite) {
+            throw new FileAlreadyExistsException(outputPath.toString());
         }
 
-        if (Files.exists(filePath) && !overwrite) {
-            logger.error(String.format(OVERWRITE_ERROR, filePath));
-            System.exit(1);
+        return Files.newBufferedWriter(outputPath, US_ASCII);
+    }
+
+    public static void setPermissions(Path path, Set<PosixFilePermission> permissions)
+            throws IOException
+    {
+        if (!Files.exists(path)) {
+            throw new FileNotFoundException(path.toString());
         }
 
-        try (BufferedWriter writer = Files.newBufferedWriter(filePath, US_ASCII)) {
+        Files.setPosixFilePermissions(path, permissions);
+    }
 
-            // Output timestamp
-            writer.write(new Date(System.currentTimeMillis()).toString());
-            writer.write('\n');
-            writer.write('\n');
+    public static void setFilePermissions(Path filePath)
+            throws IOException
+    {
+        setFilePermissions(filePath, DEFAULT_FILE_PERMISSIONS);
+    }
 
-            // Output mnemonic
-            writer.write(mnemonic);
-            writer.write('\n');
-            writer.write('\n');
+    public static void setFilePermissions(Path filePath, Set<PosixFilePermission> permissions)
+            throws IOException
+    {
+        setPermissions(filePath, permissions);
+    }
 
-            // Output wallet
-            writer.write(wallet.toString());
-            writer.write('\n');
+    public static Path resolvePath(Path path, String fileName, String fileExtension) {
 
-            Files.setPosixFilePermissions(filePath, WALLET_FILE_PERMISSIONS);
-
-            System.out.println("Saved wallet to " + filePath);
-
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-            System.exit(1);
+        if (Files.isDirectory(path)) {
+            return path.resolve(String.join(FILE_DELIMITER, fileName, fileExtension));
         }
+
+        return path;
     }
 }

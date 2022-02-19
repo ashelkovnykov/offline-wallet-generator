@@ -1,4 +1,4 @@
-package com.ashelkov.owg.io.exceptions;
+package com.ashelkov.owg.io.exception;
 
 /**
  * Thrown when System.console() is not available (null).

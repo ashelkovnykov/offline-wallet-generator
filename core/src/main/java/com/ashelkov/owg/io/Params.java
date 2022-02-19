@@ -1,17 +1,22 @@
 package com.ashelkov.owg.io;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IntegerConverter;
+import com.beust.jcommander.converters.PathConverter;
+import org.apache.commons.lang3.SystemUtils;
 
 import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.command.ColdCommand;
 import com.ashelkov.owg.io.command.HotCommand;
-import com.ashelkov.owg.io.conversion.PathConverter;
-import com.ashelkov.owg.io.util.FileUtils;
+import com.ashelkov.owg.io.conversion.OutputFormatConverter;
+import com.ashelkov.owg.io.storage.OutputFormat;
+import com.ashelkov.owg.io.storage.Writer;
+import com.ashelkov.owg.io.storage.WriterFactory;
 import com.ashelkov.owg.io.validation.*;
 
 /**
@@ -23,8 +28,11 @@ final public class Params {
     // CLI Parameter Constants
     //
 
-    private static final String OPT_OUTPUT_LOCATION_L = "--output-location";
-    private static final String OPT_OUTPUT_LOCATION_S = "-o";
+    private static final String OPT_OUTPUT_FORMAT_L = "--format";
+    private static final String OPT_OUTPUT_FORMAT_S = "-f";
+
+    private static final String OPT_OUTPUT_FILE_L = "--output-file";
+    private static final String OPT_OUTPUT_FILE_S = "-o";
 
     private static final String OPT_OVERWRITE_L = "--overwrite";
     private static final String OPT_OVERWRITE_S = "-w";
@@ -45,7 +53,8 @@ final public class Params {
     // CLI Parameter Defaults
     //
 
-    private static final Path DEFAULT_OUTPUT_DIR = Paths.get(FileUtils.getDefaultWalletDir());
+    private static final OutputFormat DEFAULT_OUTPUT_TYPE = OutputFormat.WALLET;
+    private static final Path DEFAULT_OUTPUT_DIR = Paths.get(getDefaultWalletDir());
     private static final Integer DEFAULT_ENTROPY = 256;
 
     //
@@ -53,8 +62,14 @@ final public class Params {
     //
 
     @Parameter(
-            names = {OPT_OUTPUT_LOCATION_S, OPT_OUTPUT_LOCATION_L},
-            description = "Output directory or path for wallet file",
+            names = {OPT_OUTPUT_FORMAT_S, OPT_OUTPUT_FORMAT_L},
+            description = "Generated wallet output format",
+            converter = OutputFormatConverter.class)
+    private OutputFormat outputFormat = DEFAULT_OUTPUT_TYPE;
+
+    @Parameter(
+            names = {OPT_OUTPUT_FILE_S, OPT_OUTPUT_FILE_L},
+            description = "Directory or path for output files",
             converter = PathConverter.class)
     private Path outputPath = DEFAULT_OUTPUT_DIR;
 
@@ -125,15 +140,34 @@ final public class Params {
     }
 
     //
+    // Helpers
+    //
+
+    private static String getDefaultWalletDir() {
+
+        String root;
+        String dir;
+
+        if (SystemUtils.IS_OS_MAC_OSX) {
+            root = System.getProperty("user.home");
+            dir = String.format("Library%sWallets", File.separator);
+        } else if (SystemUtils.IS_OS_WINDOWS) {
+            root = System.getenv("APPDATA");
+            dir = "Wallets";
+        } else {
+            root = System.getProperty("user.home");
+            dir = ".wallets";
+        }
+
+        return String.join(File.separator, root, dir);
+    }
+
+    //
     // Getters
     //
 
-    public Path getOutputPath() {
-        return outputPath;
-    }
-
-    public boolean hasOverwrite() {
-        return overwrite;
+    public Writer getOutputWriter() {
+        return WriterFactory.buildWriter(outputFormat, outputPath, overwrite);
     }
 
     public Integer getEntropy() {

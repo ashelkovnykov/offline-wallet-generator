@@ -6,7 +6,7 @@ import java.lang.IllegalArgumentException;
 import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
 
-import com.ashelkov.owg.io.exceptions.NullConsoleException;
+import com.ashelkov.owg.io.exception.NullConsoleException;
 
 public class PasswordValidator implements IParameterValidator {
 

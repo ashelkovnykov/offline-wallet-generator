@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.web3j.crypto.MnemonicUtils;
 
 import com.ashelkov.owg.bip.Coin;
-import com.ashelkov.owg.io.util.FileUtils;
 import com.ashelkov.owg.io.Params;
 import com.ashelkov.owg.util.Utils;
 import com.ashelkov.owg.wallet.ColdWallet;
@@ -111,11 +110,9 @@ public final class Application {
         }
 
         //
-        // Output wallet/addresses to file
+        // Output wallet/addresses
         //
 
-        logger.info(String.format("Attempting to save wallet to file '%s'", params.getOutputPath()));
-
-        FileUtils.saveWalletToFile(params.getOutputPath(), mnemonic, wallet, params.hasOverwrite());
+        params.getOutputWriter().saveWallet(mnemonic, wallet);
     }
 }
