@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Fix Logger messages from jar
 - Add "output to console" option
 - Add "secure output to console" option (print address only)
 - Add "output public keys" option
@@ -19,7 +18,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - XRP: option to use secp256k1 or ed25519
   - XMR: subaddresses
 - Run via Docker
-- Generalized output framework for other output formats
 - Unit tests
 - Separate API from CLI
 - Update documentation
