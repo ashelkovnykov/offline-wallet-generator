@@ -17,7 +17,7 @@ public class AvalancheWallet extends ColdWallet {
     }
 
     @Override
-    public String identifier() {
+    public String getIdentifier() {
         return COIN.toString();
     }
 

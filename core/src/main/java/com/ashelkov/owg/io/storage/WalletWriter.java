@@ -29,7 +29,7 @@ public final class WalletWriter extends Writer {
 
         logger.debug(String.format("WalletWriter.save() called with base path '%s'", basePath));
 
-        Path outputPath = FileUtils.resolvePath(basePath, wallet.identifier(), DEFAULT_FILE_EXT);
+        Path outputPath = FileUtils.resolvePath(basePath, wallet.getIdentifier(), DEFAULT_FILE_EXT);
 
         logger.debug(String.format("Attempting to save wallet to file '%s'", outputPath));
 

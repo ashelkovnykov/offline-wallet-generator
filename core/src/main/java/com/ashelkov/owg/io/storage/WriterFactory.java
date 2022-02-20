@@ -9,6 +9,8 @@ public final class WriterFactory {
     public static Writer buildWriter(OutputFormat format, Path outputPath, boolean overwrite) {
 
         return switch (format) {
+            case CONSOLE -> new ConsoleWriter();
+            case SECURE_CONSOLE -> new SecureConsoleWriter();
             case WALLET -> new WalletWriter(outputPath, overwrite);
         };
     }

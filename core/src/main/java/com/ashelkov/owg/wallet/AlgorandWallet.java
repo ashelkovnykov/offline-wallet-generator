@@ -17,7 +17,7 @@ public class AlgorandWallet extends ColdWallet {
     }
 
     @Override
-    public String identifier() {
+    public String getIdentifier() {
         return COIN.toString();
     }
 
