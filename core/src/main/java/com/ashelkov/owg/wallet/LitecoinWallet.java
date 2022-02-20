@@ -21,7 +21,7 @@ public class LitecoinWallet extends ColdWallet {
     }
 
     @Override
-    public String identifier() {
+    public String getIdentifier() {
         return COIN.toString();
     }
 

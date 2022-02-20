@@ -6,8 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Add "output to console" option
-- Add "secure output to console" option (print address only)
 - Add "output public keys" option
 - Add "output private keys" option
 - Add Ergo
@@ -34,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `xpub` keys for BTC and LTC
 - Release jar and convenience scripts
 - Option to force overwrite of output file
+- Option to print output to console instead of file
 ### Changed
 - XRP now uses curve secp256k1 instead of ed25519
 - CLI now uses commands instead of options to determine the type of wallet to create (cold/hot)

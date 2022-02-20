@@ -13,7 +13,7 @@ public class HotWallet extends Wallet {
     }
 
     @Override
-    public String identifier() {
+    public String getIdentifier() {
         return ID;
     }
 

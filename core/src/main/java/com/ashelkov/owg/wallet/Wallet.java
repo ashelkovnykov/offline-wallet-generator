@@ -7,5 +7,5 @@ public abstract class Wallet {
     @Override
     public abstract String toString();
 
-    public abstract String identifier();
+    public abstract String getIdentifier();
 }
