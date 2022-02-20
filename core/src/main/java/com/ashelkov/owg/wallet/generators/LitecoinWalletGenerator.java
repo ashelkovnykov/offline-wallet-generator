@@ -26,7 +26,8 @@ public class LitecoinWalletGenerator extends WalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
 
-    public LitecoinWalletGenerator(byte[] seed) {
+    public LitecoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 

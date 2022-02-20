@@ -6,18 +6,18 @@ public class WalletGeneratorFactory {
 
     private WalletGeneratorFactory() {}
 
-    public static WalletGenerator getGenerator(byte[] seed, Coin coin) {
+    public static WalletGenerator getGenerator(Coin coin, byte[] seed, boolean genPrivKey, boolean genPubKey) {
 
         return switch (coin) {
-            case BTC -> new BitcoinWalletGenerator(seed);
-            case LTC -> new LitecoinWalletGenerator(seed);
-            case DOGE -> new DogecoinWalletGenerator(seed);
-            case ETH -> new EthereumWalletGenerator(seed);
-            case XMR -> new MoneroWalletGenerator(seed);
-            case XRP -> new XRPWalletGenerator(seed);
-            case XLM -> new StellarWalletGenerator(seed);
-            case ALGO -> new AlgorandWalletGenerator(seed);
-            case AVAX -> new AvalancheWalletGenerator(seed);
+            case BTC -> new BitcoinWalletGenerator(seed, genPrivKey, genPubKey);
+            case LTC -> new LitecoinWalletGenerator(seed, genPrivKey, genPubKey);
+            case DOGE -> new DogecoinWalletGenerator(seed, genPrivKey, genPubKey);
+            case ETH -> new EthereumWalletGenerator(seed, genPrivKey, genPubKey);
+            case XMR -> new MoneroWalletGenerator(seed, genPrivKey, genPubKey);
+            case XRP -> new XRPWalletGenerator(seed, genPrivKey, genPubKey);
+            case XLM -> new StellarWalletGenerator(seed, genPrivKey, genPubKey);
+            case ALGO -> new AlgorandWalletGenerator(seed, genPrivKey, genPubKey);
+            case AVAX -> new AvalancheWalletGenerator(seed, genPrivKey, genPubKey);
         };
     }
 }

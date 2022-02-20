@@ -29,7 +29,11 @@ public final class Application {
         List<ColdWallet> subwallets = new ArrayList<>(Coin.values().length);
 
         for (Coin coin : Coin.values()) {
-            WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(seed, coin);
+            WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
+                    coin,
+                    seed,
+                    params.isGenPrivKey(),
+                    params.isGenPubKey());
             subwallets.add(walletGenerator.generateDefaultWallet());
         }
 
@@ -94,7 +98,11 @@ public final class Application {
         switch (params.getCommand()) {
             case Params.COMMAND_COLD -> {
 
-                    WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(seedFromMnemonic, params.getCoin());
+                    WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
+                            params.getCoin(),
+                            seedFromMnemonic,
+                            params.isGenPrivKey(),
+                            params.isGenPubKey());
                     wallet = walletGenerator.generateWallet(
                         params.getAccount(),
                         params.getChange(),

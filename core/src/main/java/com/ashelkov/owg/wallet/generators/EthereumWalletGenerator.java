@@ -15,7 +15,8 @@ public class EthereumWalletGenerator extends WalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
 
-    public EthereumWalletGenerator(byte[] seed) {
+    public EthereumWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 

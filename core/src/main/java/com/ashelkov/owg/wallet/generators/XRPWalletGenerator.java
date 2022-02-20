@@ -22,7 +22,8 @@ public class XRPWalletGenerator extends WalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
     private final byte[] seed;
 
-    public XRPWalletGenerator(byte[] seed) {
+    public XRPWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
         this.seed = seed;
     }

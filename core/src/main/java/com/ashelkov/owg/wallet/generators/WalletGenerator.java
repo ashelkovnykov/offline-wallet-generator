@@ -25,6 +25,14 @@ public abstract class WalletGenerator {
         logger.info(String.format(MISSING_BIP_FIELD_MSG, field, coin, DEFAULT_FIELD_VAL));
     }
 
+    protected boolean genPrivKey;
+    protected boolean genPubKey;
+
+    public WalletGenerator(boolean genPrivKey, boolean genPubKey) {
+        this.genPrivKey = genPrivKey;
+        this.genPubKey = genPubKey;
+    }
+
     protected abstract void logWarning(String field, int val);
     protected abstract void logMissing(String field);
 

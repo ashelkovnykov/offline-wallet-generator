@@ -26,7 +26,8 @@ public class BitcoinWalletGenerator extends WalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
 
-    public BitcoinWalletGenerator(byte[] seed) {
+    public BitcoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 

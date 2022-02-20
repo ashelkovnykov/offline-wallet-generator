@@ -26,7 +26,8 @@ public class AlgorandWalletGenerator extends WalletGenerator {
 
     private final byte[] seed;
 
-    public AlgorandWalletGenerator(byte[] seed) {
+    public AlgorandWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.seed = seed;
     }
 
