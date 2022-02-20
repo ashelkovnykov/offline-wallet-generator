@@ -57,7 +57,7 @@ public class BitcoinWalletGenerator extends WalletGenerator {
             index = DEFAULT_FIELD_VAL;
         }
 
-        BIP84Address masterPubKey = generateAccountPubKey(account);
+        BIP84Address masterPubKey = generateExtendedKey(account);
 
         List<BIP44Address> derivedAddresses = new ArrayList<>(numAddresses);
         for(int i = index; i < (index + numAddresses); ++i) {
@@ -70,14 +70,42 @@ public class BitcoinWalletGenerator extends WalletGenerator {
     @Override
     public BitcoinWallet generateDefaultWallet() {
 
-        BIP84Address masterPubKey = generateAccountPubKey(DEFAULT_FIELD_VAL);
+        BIP84Address masterPubKey = generateExtendedKey(DEFAULT_FIELD_VAL);
         List<BIP44Address> wrapper = new ArrayList<>(1);
         wrapper.add(generateDerivedAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
 
         return new BitcoinWallet(masterPubKey, wrapper);
     }
 
-    private BIP84Address generateAccountPubKey(int account) {
+    private BIP84Address generateDerivedAddress(int account, int change, int index) {
+
+        int[] addressPath = getDerivedAddressPath(account, change, index);
+        Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, addressPath);
+
+        byte[] unencodedAddress = EncodingUtils.to5BitBytesSafe(
+                Hash.sha256hash160(
+                        derivedKeyPair
+                                .getPublicKeyPoint()
+                                .getEncoded(true)));
+        byte[] unencodedAddressWithWitness = new byte[unencodedAddress.length + 1];
+        unencodedAddressWithWitness[0] = WITNESS_VERSION;
+        System.arraycopy(unencodedAddress, 0, unencodedAddressWithWitness, 1, unencodedAddress.length);
+
+        String address = Bech32.encode(BECH32_HRP, unencodedAddressWithWitness);
+
+        String privKeyText = null;
+        String pubKeyText = null;
+        if (genPrivKey) {
+            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKey().toByteArray());
+        }
+        if (genPubKey) {
+            pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
+        }
+
+        return new BIP84Address(address, addressPath, privKeyText, pubKeyText);
+    }
+
+    private BIP84Address generateExtendedKey(int account) {
 
         int[] addressPath = getAccountAddressPath(account);
         Bip32ECKeyPair accountKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, addressPath);
@@ -101,30 +129,25 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         return new BIP84Address(xpubKeySerialized, addressPath);
     }
 
+    private String generatePrivateKey(byte[] rawKeyBytes) {
+        byte[] privKeyBase = new byte[34];
+        byte[] privKeyBytes = new byte[38];
+
+        privKeyBase[0] = (byte)0x80;
+        System.arraycopy(rawKeyBytes, 0, privKeyBase, 1, 32);
+        privKeyBase[33] = (byte)0x01;
+
+        System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
+        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, 4);
+
+        return EncodingUtils.base58Bitcoin(privKeyBytes);
+    }
+
     private int[] getAccountAddressPath(int account) {
         int purpose = BitcoinWallet.PURPOSE | HARDENED;
         int coinCode = BitcoinWallet.COIN.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
-    }
-
-    private BIP84Address generateDerivedAddress(int account, int change, int index) {
-
-        int[] addressPath = getDerivedAddressPath(account, change, index);
-        Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, addressPath);
-
-        byte[] unencodedAddress = EncodingUtils.to5BitBytesSafe(
-                Hash.sha256hash160(
-                        derivedKeyPair
-                                .getPublicKeyPoint()
-                                .getEncoded(true)));
-        byte[] unencodedAddressWithWitness = new byte[unencodedAddress.length + 1];
-        unencodedAddressWithWitness[0] = WITNESS_VERSION;
-        System.arraycopy(unencodedAddress, 0, unencodedAddressWithWitness, 1, unencodedAddress.length);
-
-        String address = Bech32.encode(BECH32_HRP, unencodedAddressWithWitness);
-
-        return new BIP84Address(address, addressPath);
     }
 
     private int[] getDerivedAddressPath(int account, int change, int index) {
