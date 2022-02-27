@@ -17,6 +17,7 @@ public class WalletGeneratorFactory {
             case XRP -> new XRPWalletGenerator(seed, genPrivKey, genPubKey);
             case XLM -> new StellarWalletGenerator(seed, genPrivKey);
             case ALGO -> new AlgorandWalletGenerator(seed, genPrivKey, genPubKey);
+            case ERG -> new ErgoWalletGenerator(seed, genPrivKey, genPubKey);
             case AVAX -> new AvalancheWalletGenerator(seed, genPrivKey, genPubKey);
         };
     }

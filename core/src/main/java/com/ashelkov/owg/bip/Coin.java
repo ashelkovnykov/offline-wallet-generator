@@ -12,6 +12,7 @@ public enum Coin {
     XRP(144),
     XLM(148),
     ALGO(283),
+    ERG(429),
     AVAX(9000);
 
     private final int code;
