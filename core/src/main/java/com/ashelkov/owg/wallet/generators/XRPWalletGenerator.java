@@ -94,7 +94,16 @@ public class XRPWalletGenerator extends WalletGenerator {
         System.arraycopy(checksum, 0, rawAddress, 21, 4);
         String address = EncodingUtils.base58Ripple(rawAddress);
 
-        return new BIP44Address(address, addressPath);
+        String privKeyText = null;
+        String pubKeyText = null;
+        if (genPrivKey) {
+            privKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPrivateKeyBytes33()).substring(2);
+        }
+        if (genPubKey) {
+            pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
+        }
+
+        return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
     private BIP44Address generateAddressED25519(int account) {
