@@ -8,6 +8,7 @@ import org.web3j.crypto.Keys;
 
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.EthereumWallet;
+import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
@@ -28,6 +29,15 @@ public class EthereumWalletGenerator extends WalletGenerator {
     @Override
     protected void logMissing(String field) {
         logMissing(field, EthereumWallet.COIN);
+    }
+
+    @Override
+    public EthereumWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new EthereumWallet(wrapper);
     }
 
     @Override
@@ -53,15 +63,6 @@ public class EthereumWalletGenerator extends WalletGenerator {
         return new EthereumWallet(addresses);
     }
 
-    @Override
-    public EthereumWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new EthereumWallet(wrapper);
-    }
-
     private BIP44Address generateAddress(int index) {
 
         int[] addressPath = getAddressPath(index);
@@ -69,7 +70,20 @@ public class EthereumWalletGenerator extends WalletGenerator {
 
         String address = Keys.toChecksumAddress(Keys.getAddress(derivedKeyPair));
 
-        return new BIP44Address(address, addressPath);
+        String privKeyText = null;
+        String pubKeyText = null;
+        if (genPrivKey) {
+            privKeyText = String.format(
+                "0x%s",
+                EncodingUtils.bytesToHex(derivedKeyPair.getPrivateKeyBytes33()).substring(2));
+        }
+        if (genPubKey) {
+            pubKeyText = String.format(
+                "0x%s",
+                EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true)));
+        }
+
+        return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
     private int[] getAddressPath(int index) {
