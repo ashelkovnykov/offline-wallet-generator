@@ -11,16 +11,19 @@ import org.web3j.crypto.Hash;
 
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.DogecoinWallet;
+import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class DogecoinWalletGenerator extends WalletGenerator {
 
+    private static final byte DOGE_IDENTIFICATION_PREFIX = (byte)0x9E;
     private static final int P2PKH_VERSION = 30;
 
     private final Bip32ECKeyPair masterKeyPair;
 
-    public DogecoinWalletGenerator(byte[] seed) {
+    public DogecoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -32,6 +35,15 @@ public class DogecoinWalletGenerator extends WalletGenerator {
     @Override
     protected void logMissing(String field) {
         logMissing(field, DogecoinWallet.COIN);
+    }
+
+    @Override
+    public DogecoinWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
+
+        return new DogecoinWallet(wrapper);
     }
 
     @Override
@@ -59,15 +71,6 @@ public class DogecoinWalletGenerator extends WalletGenerator {
         return new DogecoinWallet(addresses);
     }
 
-    @Override
-    public DogecoinWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
-
-        return new DogecoinWallet(wrapper);
-    }
-
     private BIP44Address generateAddress(int account, int change, int index) {
 
         int[] addressPath = getAddressPath(account, change, index);
@@ -84,7 +87,18 @@ public class DogecoinWalletGenerator extends WalletGenerator {
                                             .getEncoded(true)))
                     .getHash());
 
-        return new BIP44Address(address, addressPath);
+        String privKeyText = null;
+        String pubKeyText = null;
+        if (genPrivKey) {
+            privKeyText = BitcoinWalletGenerator.generatePrivateKey(
+                derivedKeyPair.getPrivateKey().toByteArray(),
+                DOGE_IDENTIFICATION_PREFIX);
+        }
+        if (genPubKey) {
+            pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
+        }
+
+        return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
     private int[] getAddressPath(int account, int change, int index) {

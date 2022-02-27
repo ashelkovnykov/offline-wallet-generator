@@ -14,7 +14,8 @@ public class StellarWalletGenerator extends WalletGenerator {
 
     private final byte[] seed;
 
-    public StellarWalletGenerator(byte[] seed) {
+    public StellarWalletGenerator(byte[] seed, boolean genPrivKey) {
+        super(genPrivKey, false);
         this.seed = seed;
     }
 
@@ -67,7 +68,12 @@ public class StellarWalletGenerator extends WalletGenerator {
 
         String address = derivedKeyPair.getAccountId();
 
-        return new BIP44Address(address, addressPath);
+        String privKeyText = null;
+        if (genPrivKey) {
+            privKeyText = String.valueOf(derivedKeyPair.getSecretSeed());
+        }
+
+        return new BIP44Address(address, addressPath, privKeyText, null);
     }
 
     private int[] getAddressPath(int account) {

@@ -25,7 +25,8 @@ public class AvalancheWalletGenerator extends WalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
 
-    public AvalancheWalletGenerator(byte[] seed) {
+    public AvalancheWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 

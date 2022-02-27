@@ -25,7 +25,8 @@ public class MoneroWalletGenerator extends WalletGenerator {
 
     private final byte[] seed;
 
-    public MoneroWalletGenerator(byte[] seed) {
+    public MoneroWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(genPrivKey, genPubKey);
         this.seed = seed;
     }
 

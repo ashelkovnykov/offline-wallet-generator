@@ -37,6 +37,12 @@ final public class Params {
     private static final String OPT_OVERWRITE_L = "--overwrite";
     private static final String OPT_OVERWRITE_S = "-w";
 
+    private static final String OPT_PRIV_KEY_L = "--priv";
+    private static final String OPT_PRIV_KEY_S = "-K";
+
+    private static final String OPT_PUB_KEY_L = "--pub";
+    private static final String OPT_PUB_KEY_S = "-k";
+
     private static final String OPT_ENTROPY_L = "--entropy";
     private static final String OPT_ENTROPY_S = "-e";
 
@@ -75,8 +81,18 @@ final public class Params {
 
     @Parameter(
             names = {OPT_OVERWRITE_S, OPT_OVERWRITE_L},
-            description = "Overwrite wallet if already exists?")
+            description = "Overwrite wallet if already exists")
     private boolean overwrite = false;
+
+    @Parameter(
+            names = {OPT_PRIV_KEY_S, OPT_PRIV_KEY_L},
+            description = "Output the private keys for each generated address")
+    private boolean genPrivKey = false;
+
+    @Parameter(
+            names = {OPT_PUB_KEY_S, OPT_PUB_KEY_L},
+            description = "Output the public keys for each generated address")
+    private boolean genPubKey = false;
 
     @Parameter(
             names = {OPT_ENTROPY_S, OPT_ENTROPY_L},
@@ -168,6 +184,14 @@ final public class Params {
 
     public Writer getOutputWriter() {
         return WriterFactory.buildWriter(outputFormat, outputPath, overwrite);
+    }
+
+    public boolean isGenPrivKey() {
+        return genPrivKey;
+    }
+
+    public boolean isGenPubKey() {
+        return genPubKey;
     }
 
     public Integer getEntropy() {
