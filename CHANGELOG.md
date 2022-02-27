@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Add Ergo
 - Add Handshake
 - Add Chia
 - Update all java & import versions to latest
@@ -15,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - XRP: option to use secp256k1 or ed25519
   - XMR: view/spend keys
   - XMR: sub-addresses
+  - AVAX: P-Chain addresses
 - Run via Docker
 - Separate API from CLI
 - Documentation
@@ -22,8 +22,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Long-term
 - Unit tests
 - Generate QR codes
-- Alternate output types (YAML, JSON)
 - Generate offline transactions
+
+### Looking for Volunteer
+- Private/public keys for ALGO
+- Private/public keys for AVAX
+- Alternate output types (YAML, JSON)
 
 ## [Unreleased]
 ### Added
@@ -34,8 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to force overwrite of output file
 - Option to print output to console instead of file
 - Option to output private/public keys
+- ERG support
 ### Changed
-- XRP now uses curve secp256k1 instead of ed25519
+- Default XRP address  uses curve secp256k1 instead of ed25519
 - CLI now uses commands instead of options to determine the type of wallet to create (cold/hot)
 - Default file name
 - Output file no longer overwrites existing file by default
