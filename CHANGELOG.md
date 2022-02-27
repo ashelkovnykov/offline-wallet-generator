@@ -6,21 +6,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Add "output public keys" option
-- Add "output private keys" option
 - Add Ergo
+- Add Handshake
 - Add Chia
 - Update all java & import versions to latest
 - Refactor terminology from "cold & hot" to "solo & multi"
 - Add coin subcommands for "solo" wallets
   - XRP: option to use secp256k1 or ed25519
-  - XMR: subaddresses
+  - XMR: view/spend keys
+  - XMR: sub-addresses
 - Run via Docker
-- Unit tests
 - Separate API from CLI
-- Update documentation
+- Documentation
 
 ### Long-term
+- Unit tests
 - Generate QR codes
 - Alternate output types (YAML, JSON)
 - Generate offline transactions
@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Release jar and convenience scripts
 - Option to force overwrite of output file
 - Option to print output to console instead of file
+- Option to output private/public keys
 ### Changed
 - XRP now uses curve secp256k1 instead of ed25519
 - CLI now uses commands instead of options to determine the type of wallet to create (cold/hot)
