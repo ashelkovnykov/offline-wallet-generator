@@ -19,10 +19,25 @@ public class BitcoinWalletGenerator extends WalletGenerator {
 
     private static final String BECH32_HRP = "bc";
     private static final byte WITNESS_VERSION = (byte)0x00;
+    private static final byte BTC_IDENTIFICATION_PREFIX = (byte)0x80;
     private static final int XPUB_VERSION = 0x04b24746;
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Serialization_format
     private static final int XPUB_CORE_LENGTH = 78;
     private static final int XPUB_CHECKSUM_LENGTH = 4;
+
+    public static String generatePrivateKey(byte[] rawKeyBytes, byte blockchainIdPrefix) {
+        byte[] privKeyBase = new byte[34];
+        byte[] privKeyBytes = new byte[38];
+
+        privKeyBase[0] = blockchainIdPrefix;
+        System.arraycopy(rawKeyBytes, 0, privKeyBase, 1, 32);
+        privKeyBase[33] = (byte)0x01;
+
+        System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
+        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, 4);
+
+        return EncodingUtils.base58Bitcoin(privKeyBytes);
+    }
 
     private final Bip32ECKeyPair masterKeyPair;
 
@@ -96,7 +111,7 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         String privKeyText = null;
         String pubKeyText = null;
         if (genPrivKey) {
-            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKey().toByteArray());
+            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKey().toByteArray(), BTC_IDENTIFICATION_PREFIX);
         }
         if (genPubKey) {
             pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
@@ -127,20 +142,6 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         String xpubKeySerialized = EncodingUtils.base58Bitcoin(xpubKey);
 
         return new BIP84Address(xpubKeySerialized, addressPath);
-    }
-
-    private String generatePrivateKey(byte[] rawKeyBytes) {
-        byte[] privKeyBase = new byte[34];
-        byte[] privKeyBytes = new byte[38];
-
-        privKeyBase[0] = (byte)0x80;
-        System.arraycopy(rawKeyBytes, 0, privKeyBase, 1, 32);
-        privKeyBase[33] = (byte)0x01;
-
-        System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
-        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, 4);
-
-        return EncodingUtils.base58Bitcoin(privKeyBytes);
     }
 
     private int[] getAccountAddressPath(int account) {

@@ -19,6 +19,7 @@ public class LitecoinWalletGenerator extends WalletGenerator {
 
     private static final String BECH32_HRP = "ltc";
     private static final byte WITNESS_VERSION = (byte)0x00;
+    private static final byte LTC_IDENTIFICATION_PREFIX = (byte)0xB0;
     private static final int XPUB_VERSION = 0x04b24746;
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Serialization_format
     private static final int XPUB_CORE_LENGTH = 78;
@@ -96,27 +97,15 @@ public class LitecoinWalletGenerator extends WalletGenerator {
         String privKeyText = null;
         String pubKeyText = null;
         if (genPrivKey) {
-            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKey().toByteArray());
+            privKeyText = BitcoinWalletGenerator.generatePrivateKey(
+                derivedKeyPair.getPrivateKey().toByteArray(),
+                LTC_IDENTIFICATION_PREFIX);
         }
         if (genPubKey) {
             pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
         }
 
         return new BIP84Address(address, addressPath, privKeyText, pubKeyText);
-    }
-
-    private String generatePrivateKey(byte[] rawKeyBytes) {
-        byte[] privKeyBase = new byte[34];
-        byte[] privKeyBytes = new byte[38];
-
-        privKeyBase[0] = (byte)0xB0;
-        System.arraycopy(rawKeyBytes, 0, privKeyBase, 1, 32);
-        privKeyBase[33] = (byte)0x01;
-
-        System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
-        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, 4);
-
-        return EncodingUtils.base58Bitcoin(privKeyBytes);
     }
 
     private BIP84Address generateExtendedKey(int account) {
