@@ -91,7 +91,7 @@ public class DogecoinWalletGenerator extends WalletGenerator {
         String pubKeyText = null;
         if (genPrivKey) {
             privKeyText = BitcoinWalletGenerator.generatePrivateKey(
-                derivedKeyPair.getPrivateKey().toByteArray(),
+                derivedKeyPair.getPrivateKeyBytes33(),
                 DOGE_IDENTIFICATION_PREFIX);
         }
         if (genPubKey) {

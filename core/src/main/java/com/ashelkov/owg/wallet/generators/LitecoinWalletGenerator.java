@@ -98,8 +98,8 @@ public class LitecoinWalletGenerator extends WalletGenerator {
         String pubKeyText = null;
         if (genPrivKey) {
             privKeyText = BitcoinWalletGenerator.generatePrivateKey(
-                derivedKeyPair.getPrivateKey().toByteArray(),
-                LTC_IDENTIFICATION_PREFIX);
+                    derivedKeyPair.getPrivateKeyBytes33(),
+                    LTC_IDENTIFICATION_PREFIX);
         }
         if (genPubKey) {
             pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));

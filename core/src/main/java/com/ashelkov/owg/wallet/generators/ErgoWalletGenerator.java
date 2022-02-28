@@ -10,6 +10,7 @@ import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.ErgoWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class ErgoWalletGenerator extends WalletGenerator {
@@ -99,7 +100,7 @@ public class ErgoWalletGenerator extends WalletGenerator {
             0,
             addressWithChecksum,
             34,
-            4);
+            CHECKSUM_LENGTH);
 
         String address = EncodingUtils.base58Bitcoin(addressWithChecksum);
         String privKeyText = null;

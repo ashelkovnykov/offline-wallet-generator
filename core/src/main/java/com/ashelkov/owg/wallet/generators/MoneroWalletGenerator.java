@@ -12,6 +12,7 @@ import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.Ed25519Utils;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.KECCAK_256;
 
@@ -102,7 +103,7 @@ public class MoneroWalletGenerator extends WalletGenerator {
 
         byte[] rawAddressChecksum = new byte[69];
         System.arraycopy(rawAddressNoChecksum, 0, rawAddressChecksum, 0, 65);
-        System.arraycopy(checksum, 0, rawAddressChecksum, 65, 4);
+        System.arraycopy(checksum, 0, rawAddressChecksum, 65, CHECKSUM_LENGTH);
 
         String address = EncodingUtils.base58Monero(rawAddressChecksum);
 
