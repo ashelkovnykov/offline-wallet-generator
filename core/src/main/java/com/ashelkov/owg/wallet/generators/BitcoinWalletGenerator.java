@@ -29,8 +29,8 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         byte[] privKeyBase = new byte[34];
         byte[] privKeyBytes = new byte[38];
 
+        System.arraycopy(rawKeyBytes, 0, privKeyBase, 0, 33);
         privKeyBase[0] = blockchainIdPrefix;
-        System.arraycopy(rawKeyBytes, 0, privKeyBase, 1, 32);
         privKeyBase[33] = (byte)0x01;
 
         System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
@@ -111,7 +111,7 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         String privKeyText = null;
         String pubKeyText = null;
         if (genPrivKey) {
-            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKey().toByteArray(), BTC_IDENTIFICATION_PREFIX);
+            privKeyText = generatePrivateKey(derivedKeyPair.getPrivateKeyBytes33(), BTC_IDENTIFICATION_PREFIX);
         }
         if (genPubKey) {
             pubKeyText = EncodingUtils.bytesToHex(derivedKeyPair.getPublicKeyPoint().getEncoded(true));
