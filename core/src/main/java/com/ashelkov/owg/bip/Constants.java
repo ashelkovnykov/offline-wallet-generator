@@ -14,5 +14,8 @@ public class Constants {
     // https://github.com/bitcoin/bips/blob/master/bip-0084.mediawiki
     public static final int BIP84_PURPOSE = 84;
 
+    // Checksums for all coins use only the first 4 bytes
+    public static final int CHECKSUM_LENGTH = 4;
+
     private Constants() {}
 }

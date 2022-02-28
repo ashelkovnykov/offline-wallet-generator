@@ -12,6 +12,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.XRPWallet;
 
+import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class XRPWalletGenerator extends WalletGenerator {
@@ -91,7 +92,7 @@ public class XRPWalletGenerator extends WalletGenerator {
         byte[] checksum = Hash.sha256(Hash.sha256(payload));
         byte[] rawAddress = new byte[25];
         System.arraycopy(payload, 0, rawAddress, 0, 21);
-        System.arraycopy(checksum, 0, rawAddress, 21, 4);
+        System.arraycopy(checksum, 0, rawAddress, 21, CHECKSUM_LENGTH);
         String address = EncodingUtils.base58Ripple(rawAddress);
 
         String privKeyText = null;
@@ -125,7 +126,7 @@ public class XRPWalletGenerator extends WalletGenerator {
         byte[] checksum = Hash.sha256(Hash.sha256(payload));
         byte[] rawAddress = new byte[25];
         System.arraycopy(payload, 0, rawAddress, 0, 21);
-        System.arraycopy(checksum, 0, rawAddress, 21, 4);
+        System.arraycopy(checksum, 0, rawAddress, 21, CHECKSUM_LENGTH);
         String address = EncodingUtils.base58Ripple(rawAddress);
 
         return new BIP44Address(address, addressPathED25519);

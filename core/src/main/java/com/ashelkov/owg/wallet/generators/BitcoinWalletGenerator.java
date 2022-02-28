@@ -13,6 +13,7 @@ import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.wallet.BitcoinWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class BitcoinWalletGenerator extends WalletGenerator {
@@ -23,7 +24,6 @@ public class BitcoinWalletGenerator extends WalletGenerator {
     private static final int XPUB_VERSION = 0x04b24746;
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Serialization_format
     private static final int XPUB_CORE_LENGTH = 78;
-    private static final int XPUB_CHECKSUM_LENGTH = 4;
 
     public static String generatePrivateKey(byte[] rawKeyBytes, byte blockchainIdPrefix) {
         byte[] privKeyBase = new byte[34];
@@ -34,7 +34,7 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         privKeyBase[33] = (byte)0x01;
 
         System.arraycopy(privKeyBase, 0, privKeyBytes, 0, 34);
-        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, 4);
+        System.arraycopy(Hash.sha256(Hash.sha256(privKeyBase)), 0, privKeyBytes, 34, CHECKSUM_LENGTH);
 
         return EncodingUtils.base58Bitcoin(privKeyBytes);
     }
@@ -135,9 +135,9 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         byte[] xpubKeyCore = xpubKeyBuilder.array();
         byte[] checksum = Hash.sha256(Hash.sha256(xpubKeyCore));
 
-        byte[] xpubKey = new byte[XPUB_CORE_LENGTH + XPUB_CHECKSUM_LENGTH];
+        byte[] xpubKey = new byte[XPUB_CORE_LENGTH + CHECKSUM_LENGTH];
         System.arraycopy(xpubKeyCore, 0, xpubKey, 0, XPUB_CORE_LENGTH);
-        System.arraycopy(checksum, 0, xpubKey, XPUB_CORE_LENGTH, XPUB_CHECKSUM_LENGTH);
+        System.arraycopy(checksum, 0, xpubKey, XPUB_CORE_LENGTH, CHECKSUM_LENGTH);
 
         String xpubKeySerialized = EncodingUtils.base58Bitcoin(xpubKey);
 
