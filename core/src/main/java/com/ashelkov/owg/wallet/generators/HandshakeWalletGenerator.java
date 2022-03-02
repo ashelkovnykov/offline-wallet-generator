@@ -5,13 +5,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.bitcoinj.core.Bech32;
-import org.bouncycastle.jcajce.provider.digest.Blake2b;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Hash;
 
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.wallet.HandshakeWallet;
+import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
@@ -62,10 +62,9 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, addressPath);
 
         byte[] unencodedAddress = EncodingUtils.to5BitBytesSafe(
-            (new Blake2b.Blake2b160()).digest(
-                    derivedKeyPair
-                            .getPublicKeyPoint()
-                            .getEncoded(true)));
+                DigestUtils.unsafeDigest(
+                        DigestUtils.BLAKE2B_160,
+                        derivedKeyPair.getPublicKeyPoint().getEncoded(true)));
         byte[] unencodedAddressWithWitness = new byte[unencodedAddress.length + 1];
         unencodedAddressWithWitness[0] = WITNESS_VERSION;
         System.arraycopy(unencodedAddress, 0, unencodedAddressWithWitness, 1, unencodedAddress.length);

@@ -56,15 +56,7 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
 
         int[] addressPath = getAddressPath(account);
         byte[] publicKey = KeyPair.fromBip39Seed(seed, account).getPublicKey();
-
-        // TODO: Need better solution for this
-        byte[] checksum;
-        try {
-            checksum = DigestUtils.digest(SHA_512_256, publicKey);
-        } catch (Exception e) {
-            checksum = new byte[0];
-        }
-
+        byte[] checksum = DigestUtils.unsafeDigest(SHA_512_256, publicKey);
         byte[] unencodedAddress = new byte[publicKey.length + CHECKSUM_BYTES];
         System.arraycopy(publicKey, 0, unencodedAddress, 0, publicKey.length);
         System.arraycopy(
