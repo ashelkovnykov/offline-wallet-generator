@@ -12,8 +12,9 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 public class DigestUtils {
 
     // Used to select hash/digest algorithm from provider
-    public static final String SHA_512_256 = "SHA-512/256";
+    public static final String BLAKE2B_160 = "BLAKE2B-160";
     public static final String KECCAK_256 = "Keccak-256";
+    public static final String SHA_512_256 = "SHA-512/256";
 
     private static void setupIfNeeded() {
         // Add bouncy castle provider for crypto, if it's not already added
@@ -30,5 +31,17 @@ public class DigestUtils {
         digest.update(Arrays.copyOf(data, data.length));
 
         return digest.digest();
+    }
+
+    public static byte[] unsafeDigest(String alg, byte[] data) {
+
+        byte[] encodedData;
+        try {
+            encodedData = digest(alg, data);
+        } catch (Exception e) {
+            encodedData = new byte[0];
+        }
+
+        return encodedData;
     }
 }

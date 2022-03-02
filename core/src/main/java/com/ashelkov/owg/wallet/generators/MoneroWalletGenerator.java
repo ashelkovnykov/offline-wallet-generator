@@ -78,13 +78,7 @@ public class MoneroWalletGenerator extends WalletGenerator {
         int[] addressPath = getAddressPath(account);
 
         byte[] privateSpendKey = Ed25519Utils.reduce32(Ed25519Utils.deriveEd25519PrivateKey(seed, addressPath));
-        // TODO: Need better solution for this
-        byte[] privateViewKey;
-        try {
-            privateViewKey = Ed25519Utils.reduce32(DigestUtils.digest(KECCAK_256, privateSpendKey));
-        } catch (Exception e) {
-            privateViewKey = new byte[0];
-        }
+        byte[] privateViewKey = Ed25519Utils.reduce32(DigestUtils.unsafeDigest(KECCAK_256, privateSpendKey));
         byte[] publicSpendKey = ED_DSA_PARAMETER_SPEC.getB().scalarMultiply(privateSpendKey).toByteArray();
         byte[] publicViewKey = ED_DSA_PARAMETER_SPEC.getB().scalarMultiply(privateViewKey).toByteArray();
 
@@ -93,14 +87,7 @@ public class MoneroWalletGenerator extends WalletGenerator {
         System.arraycopy(publicSpendKey, 0, rawAddressNoChecksum, 1, 32);
         System.arraycopy(publicViewKey, 0, rawAddressNoChecksum, 33, 32);
 
-        // TODO: Need better solution for this
-        byte[] checksum;
-        try {
-            checksum = DigestUtils.digest(KECCAK_256, rawAddressNoChecksum);
-        } catch (Exception e) {
-            checksum = new byte[0];
-        }
-
+        byte[] checksum = DigestUtils.unsafeDigest(KECCAK_256, rawAddressNoChecksum);
         byte[] rawAddressChecksum = new byte[69];
         System.arraycopy(rawAddressNoChecksum, 0, rawAddressChecksum, 0, 65);
         System.arraycopy(checksum, 0, rawAddressChecksum, 65, CHECKSUM_LENGTH);
