@@ -20,61 +20,6 @@ public class EncodingUtils {
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
 
     /**
-     * Encodes the given bytes as a base58 string (no checksum is appended) for Bitcoin.
-     *
-     * @param input the bytes to encode
-     * @return the base58-encoded string
-     */
-    public static String base58Bitcoin(byte[] input) {
-        return doEncodeBase58(input, BITCOIN_ALPHABET);
-    }
-
-    /**
-     * Encodes the given bytes as a base58 string (no checksum is appended) for Ripple.
-     *
-     * @param input the bytes to encode
-     * @return the base58-encoded string
-     */
-    public static String base58Ripple(byte[] input) {
-        return doEncodeBase58(input, RIPPLE_ALPHABET);
-    }
-
-    /**
-     *
-     * https://monerodocs.org/cryptography/base58/
-     *
-     * @param input
-     * @return
-     */
-    public static String base58Monero(byte[] input) {
-
-        StringBuilder result = new StringBuilder();
-
-        // TODO: Need check that input is exactly 65 bytes in length (though the current code should work for any length)
-        int length = input.length;
-        int hopLength = length - MONERO_HOP;
-        int i;
-
-        for (i = 0; i < hopLength; i += MONERO_HOP) {
-            byte[] chunk = new byte[MONERO_HOP];
-            System.arraycopy(input, i, chunk, 0, MONERO_HOP);
-            String chunk58 = base58Bitcoin(chunk);
-
-            result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_LONG - chunk58.length()));
-            result.append(chunk58);
-        }
-
-        byte[] chunk = new byte[length - i];
-        System.arraycopy(input, i, chunk, 0, length - i);
-        String chunk58 = base58Bitcoin(chunk);
-
-        result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_SHORT - chunk58.length()));
-        result.append(chunk58);
-
-        return result.toString();
-    }
-
-    /**
      *
      * NOTE: This code is copied from...
      * https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
@@ -144,6 +89,88 @@ public class EncodingUtils {
     }
 
     /**
+     * Encodes the given bytes as a base58 string (no checksum is appended) for Bitcoin.
+     *
+     * @param input the bytes to encode
+     * @return the base58-encoded string
+     */
+    public static String base58Bitcoin(byte[] input) {
+        return doEncodeBase58(input, BITCOIN_ALPHABET);
+    }
+
+    /**
+     * Encodes the given bytes as a base58 string (no checksum is appended) for Ripple.
+     *
+     * @param input the bytes to encode
+     * @return the base58-encoded string
+     */
+    public static String base58Ripple(byte[] input) {
+        return doEncodeBase58(input, RIPPLE_ALPHABET);
+    }
+
+    /**
+     *
+     * https://monerodocs.org/cryptography/base58/
+     *
+     * @param input
+     * @return
+     */
+    public static String base58Monero(byte[] input) {
+
+        StringBuilder result = new StringBuilder();
+
+        // TODO: Need check that input is exactly 65 bytes in length (though the current code should work for any length)
+        int length = input.length;
+        int hopLength = length - MONERO_HOP;
+        int i;
+
+        for (i = 0; i < hopLength; i += MONERO_HOP) {
+            byte[] chunk = new byte[MONERO_HOP];
+            System.arraycopy(input, i, chunk, 0, MONERO_HOP);
+            String chunk58 = base58Bitcoin(chunk);
+
+            result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_LONG - chunk58.length()));
+            result.append(chunk58);
+        }
+
+        byte[] chunk = new byte[length - i];
+        System.arraycopy(input, i, chunk, 0, length - i);
+        String chunk58 = base58Bitcoin(chunk);
+
+        result.append(String.valueOf(BITCOIN_ALPHABET[0]).repeat(MONERO_RES_SHORT - chunk58.length()));
+        result.append(chunk58);
+
+        return result.toString();
+    }
+
+    /**
+     * Code taken from the top answer to this question:
+     * https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
+     *
+     * ================================================================================================================
+     *
+     * @param bytes
+     * @return
+     */
+    public static String bytesToHex(byte[] bytes) {
+        byte[] hexChars = new byte[bytes.length * 2];
+        for (int j = 0; j < bytes.length; j++) {
+            int v = bytes[j] & 0xFF;
+            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
+            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
+        }
+        return new String(hexChars, StandardCharsets.UTF_8);
+    }
+
+    public static byte[] intToFourBytes(int i) {
+        byte[] result = new byte[4];
+        for (int j = 0; j < 4; j++) {
+            result[3 - j] = (byte)(i >> (j * 8));
+        }
+        return result;
+    }
+
+    /**
      *
      * @param input
      * @return
@@ -177,22 +204,5 @@ public class EncodingUtils {
         return result;
     }
 
-    /**
-     * Code taken from the top answer to this question:
-     * https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
-     *
-     * ================================================================================================================
-     *
-     * @param bytes
-     * @return
-     */
-    public static String bytesToHex(byte[] bytes) {
-        byte[] hexChars = new byte[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars, StandardCharsets.UTF_8);
-    }
+    private EncodingUtils() {}
 }

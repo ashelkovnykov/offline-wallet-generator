@@ -44,4 +44,6 @@ public class DigestUtils {
 
         return encodedData;
     }
+
+    private DigestUtils() {}
 }
