@@ -19,6 +19,7 @@ public class WalletGeneratorFactory {
             case ALGO -> new AlgorandWalletGenerator(seed, genPrivKey, genPubKey);
             case ERG -> new ErgoWalletGenerator(seed, genPrivKey, genPubKey);
             case HNS -> new HandshakeWalletGenerator(seed, genPrivKey, genPubKey);
+            case XCH -> new ChiaWalletGenerator(seed, genPrivKey, genPubKey);
             case AVAX -> new AvalancheWalletGenerator(seed, genPrivKey, genPubKey);
         };
     }

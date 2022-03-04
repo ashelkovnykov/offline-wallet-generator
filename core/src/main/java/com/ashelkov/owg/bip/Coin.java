@@ -14,6 +14,7 @@ public enum Coin {
     ALGO(283),
     ERG(429),
     HNS(5353),
+    XCH(8444),
     AVAX(9000);
 
     private final int code;

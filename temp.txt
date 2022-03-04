@@ -1,0 +1,251 @@
+- Chia uses BLS encryption
+    - https://docs.chia.net/docs/09keys/keys-and-signatures
+- Uses BLS as defined in EIP-2333 (version 2)
+    - https://eips.ethereum.org/EIPS/eip-2333
+- Code chain:
+    1. Chia wallet functions -> 'get_address'
+        - https://github.com/Chia-Network/chia-blockchain/blob/7fb26a7a142e297e608c2f086fb57b450d7826e4/chia/cmds/wallet_funcs.py#L217
+    2. Chia wallet RPC client -> 'get_next_address'
+        - https://github.com/Chia-Network/chia-blockchain/blob/7fb26a7a142e297e608c2f086fb57b450d7826e4/chia/rpc/wallet_rpc_client.py#L125
+    3. Chia wallet RPC api -> 'get_next_address'
+        - https://github.com/Chia-Network/chia-blockchain/blob/941a91b36b5e0015e6a2611041ed40af5794bf90/chia/rpc/wallet_rpc_api.py#L715
+    4. Chia wallet 'get_puzzle_hash' -> ???
+    
+    6. Chia wallet derive key funcs 'master_sk_to_wallet_sk'
+        - https://github.com/Chia-Network/chia-blockchain/blob/34edf6e35e7126afb124037f8a6bb5feda833c32/chia/wallet/derive_keys.py#L41
+    7. Chia BLS signatures 'DeriveChildSk'
+        - https://github.com/Chia-Network/bls-signatures/blob/53243db501e1e9f5d031970da728efb1873f6c81/src/hdkeys.hpp#L153
+
+
+================================================================================
+1
+================================================================================
+
+static PrivateKey DeriveChildSk(const PrivateKey& parentSk, uint32_t index) {
+    uint8_t* lamportPk = Util::SecAlloc<uint8_t>(HASH_LEN);                     // 'lamportPk' = length 32 byte array
+    HDKeys::ParentSkToLamportPK(lamportPk, parentSk, index);                    // see 2
+    std::vector<uint8_t> lamportPkVector(lamportPk, lamportPk + HASH_LEN);      // convert 'lamportPk' to Vector
+    PrivateKey child = HDKeys::KeyGen(lamportPkVector);                         // see 7
+    Util::SecFree(lamportPk);
+    return child;
+}
+
+================================================================================
+2
+================================================================================
+
+static void ParentSkToLamportPK(uint8_t* outputLamportPk, const PrivateKey& parentSk, uint32_t index) {
+    uint8_t* salt = Util::SecAlloc<uint8_t>(4);                     // 'salt'     = length 4  byte array
+    uint8_t* ikm = Util::SecAlloc<uint8_t>(HASH_LEN);               // 'ikm'      = length 32 byte array
+    uint8_t* notIkm = Util::SecAlloc<uint8_t>(HASH_LEN);            // 'notIkm'   = length 32 byte array
+    uint8_t* lamport0 = Util::SecAlloc<uint8_t>(HASH_LEN * 255);    // 'lamport0' = length 8160 byte array (255 * 32)
+    uint8_t* lamport1 = Util::SecAlloc<uint8_t>(HASH_LEN * 255);    // 'lamport1' = length 8160 byte array (255 * 32)
+
+    Util::IntToFourBytes(salt, index);                              // 'salt' = child index converted from int to 4 bytes
+    parentSk.Serialize(ikm);                                        // 'ikm'  = parent key as byte array
+
+    for (size_t i = 0; i < HASH_LEN; i++) {  // Flips the bits
+        notIkm[i] = ikm[i] ^ 0xff;                                  // 'notIkm' = bit flipped version of 'ikm'
+    }
+
+    HDKeys::IKMToLamportSk(lamport0, ikm, HASH_LEN, salt, 4);       // 'lamport0' = all hashes from 255 sequential calls to md5_hmac, starting with null data, and using ['ikm' encrypted by md5_hmac with 'salt' as key] as key  (see 3)
+    HDKeys::IKMToLamportSk(lamport1, notIkm, HASH_LEN, salt, 4);    // 'lamport1' = all hashes from 255 sequential calls to md5_hmac, starting with null data, and using ['notIkm' encrypted by md5_hmac with 'salt' as key] as key  (see 3)
+
+    uint8_t* lamportPk = Util::SecAlloc<uint8_t>(HASH_LEN * 255 * 2); // 'lamportPk' = length 16320 byte array (32 * 255 * 2)
+
+    for (size_t i = 0; i < 255; i++) {                              // concatenate 'lamport0' and 'lamport1', calling SHA256 on each of their component hashes
+        Util::Hash256(
+                lamportPk + (i * HASH_LEN),     // 0, 32, 64, 96, ...
+                lamport0 + (i * HASH_LEN),      // 0, 32, 64, 96, ...
+                HASH_LEN);
+    }
+
+    for (size_t i=0; i < 255; i++) {
+        Util::Hash256(
+                lamportPk + (255 * HASH_LEN) + (i * HASH_LEN),  // 8160, 8192, ...
+                lamport1 + i * HASH_LEN,                        // 8160, 8192, ...
+                HASH_LEN);
+    }
+    Util::Hash256(outputLamportPk, lamportPk, HASH_LEN * 255 * 2);  // 'outputLamportPk' = SHA256 hash of 'lamportPk'
+
+    Util::SecFree(salt);
+    Util::SecFree(ikm);
+    Util::SecFree(notIkm);
+    Util::SecFree(lamport0);
+    Util::SecFree(lamport1);
+    Util::SecFree(lamportPk);
+}
+
+================================================================================
+3
+================================================================================
+
+static void IKMToLamportSk(
+        uint8_t* outputLamportSk,
+        const uint8_t* ikm,
+        size_t ikmLen,
+        const uint8_t* salt,
+        size_t saltLen)  {
+        
+    // Expands the ikm to 255*HASH_LEN bytes for the lamport sk
+    const uint8_t info[1] = {0};
+    HKDF256::ExtractExpand(outputLamportSk, HASH_LEN * 255, ikm, ikmLen, salt, saltLen, info, 0);   // 'outputLamportSk' = all hashes from 255 sequential calls to md5_hmac, starting with 'info', and using ['ikm' encrypted by md5_hmac with 'salt' as key] as key  (see 4)
+}
+
+================================================================================
+4
+================================================================================
+
+static void ExtractExpand(
+        uint8_t* output,
+        size_t outputLen,
+        const uint8_t* key,
+        size_t keyLen,
+        const uint8_t* salt,
+        size_t saltLen,
+        const uint8_t* info,
+        size_t infoLen) {
+        
+    uint8_t* prk = Util::SecAlloc<uint8_t>(HASH_LEN);           // 'prk' = length 32 byte array
+    HKDF256::Extract(prk, salt, saltLen, key, keyLen);          // 'prk' = 'key' encrypted with md5_hmac using 'salt' as key        (see 5)
+    HKDF256::Expand(output, outputLen, prk, info, infoLen);     // 'output' = all hashes from 255 sequential calls to md5_hmac, starting with 'info', and 'prk' as key (see 6)
+    Util::SecFree(prk);
+}
+
+================================================================================
+5
+================================================================================
+
+static void Extract(
+        uint8_t* prk_output,
+        const uint8_t* salt,
+        const size_t saltLen,
+        const uint8_t* ikm,
+        const size_t ikm_len) {
+        
+    // assert(saltLen == 4);  // Used for EIP2333 key derivation
+    // assert(ikm_len == 32);  // Used for EIP2333 key derivation
+    // Hash256 used as the hash function (sha256)
+    // PRK Output is 32 bytes (HashLen)
+    md_hmac(prk_output, ikm, ikm_len, salt, saltLen);       // encrypt 'ikm' using md5_hmac with 'salt' as key, output to 'prk_output'
+}                                                           // https://www.cryptosys.net/manapi/api_MD5_Hmac.html
+
+================================================================================
+6
+================================================================================
+
+static void Expand(
+        uint8_t* okm,
+        size_t L,
+        const uint8_t* prk,
+        const uint8_t* info,
+        const size_t infoLen) {
+
+    assert(L <= 255 * HASH_LEN); // L <= 255 * HashLen
+    assert(infoLen >= 0);
+    size_t N = (L + HASH_LEN - 1) / HASH_LEN; // Round up                   // 'N' = ((255 * 32) + 32 - 1) / 32 = ((256 * 32) - 1) / 32 = 255
+    size_t bytesWritten = 0;
+
+    uint8_t* T = Util::SecAlloc<uint8_t>(HASH_LEN);                         // 'T' = length 32 byte array
+    uint8_t* hmacInput1 = Util::SecAlloc<uint8_t>(infoLen + 1);             // 'hmacInput1' = length 1  byte array
+    uint8_t* hmacInput = Util::SecAlloc<uint8_t>(HASH_LEN + infoLen + 1);   // 'hmacInput'  = length 33 byte array (32 + 0 + 1 = 33)
+
+    assert(N >= 1 && N <= 255);
+
+    for (size_t i = 1; i <= N; i++) {                                       // for 1..255 (inclusive)
+        if (i == 1) {                                                       // on the first iter...
+            memcpy(hmacInput1, info, infoLen);                              // copy nothing from 'info' to 'hmacInput1'
+            hmacInput1[infoLen] = i;                                        // first (and only) slot in 'hmacInput1' = 0
+            md_hmac(T, hmacInput1, infoLen + 1, prk, HASH_LEN);             // encrypt 'hmacInput1' using md5_hmac with 'prk' as key, output to 'T'
+        } else {                                                            // on all other iters...
+            memcpy(hmacInput, T, HASH_LEN);                                 // copy data from 'T' to 'hmacInput'
+            memcpy(hmacInput + HASH_LEN, info, infoLen);                    // copy nothing from 'info' to 'hmacInput'
+            hmacInput[HASH_LEN + infoLen] = i;                              // final slot in 'hmacInput' = iter
+            md_hmac(T, hmacInput, HASH_LEN + infoLen + 1, prk, HASH_LEN);   // encrypt 'hmacInput' using md5_hmac with 'prk' as key, output to 'T'
+        }
+        size_t to_write = L - bytesWritten;
+        if (to_write > HASH_LEN) {
+            to_write = HASH_LEN;
+        }
+        assert (to_write > 0 && to_write <= HASH_LEN);
+        memcpy(okm + bytesWritten, T, to_write);                            // write 'T' to next open 32 byte slot in 'okm'
+        bytesWritten += to_write;
+    }
+    Util::SecFree(T);
+    Util::SecFree(hmacInput1);
+    Util::SecFree(hmacInput);
+    assert(bytesWritten == L);
+}
+
+================================================================================
+7
+================================================================================
+
+static PrivateKey KeyGen(const Bytes& seed)
+{
+    // KeyGen
+    // 1. PRK = HKDF-Extract("BLS-SIG-KEYGEN-SALT-", IKM || I2OSP(0, 1))
+    // 2. OKM = HKDF-Expand(PRK, keyInfo || I2OSP(L, 2), L)
+    // 3. SK = OS2IP(OKM) mod r
+    // 4. return SK
+
+    const uint8_t info[1] = {0};
+    const size_t infoLen = 0;
+
+    // Required by the ietf spec to be at least 32 bytes
+    if (seed.size() < 32) {
+        throw std::invalid_argument("Seed size must be at least 32 bytes");
+    }
+
+    // "BLS-SIG-KEYGEN-SALT-" in ascii
+    const uint8_t saltHkdf[20] = {66, 76, 83, 45, 83, 73, 71, 45, 75, 69,
+                                89, 71, 69, 78, 45, 83, 65, 76, 84, 45};
+
+    uint8_t *prk = Util::SecAlloc<uint8_t>(32);
+    uint8_t *ikmHkdf = Util::SecAlloc<uint8_t>(seed.size() + 1);
+    memcpy(ikmHkdf, seed.begin(), seed.size());
+    ikmHkdf[seed.size()] = 0;
+
+    const uint8_t L = 48;  // `ceil((3 * ceil(log2(r))) / 16)`, where `r` is the
+                        // order of the BLS 12-381 curve
+
+    uint8_t *okmHkdf = Util::SecAlloc<uint8_t>(L);
+
+    uint8_t keyInfoHkdf[infoLen + 2];
+    memcpy(keyInfoHkdf, info, infoLen);
+    keyInfoHkdf[infoLen] = 0;  // Two bytes for L, 0 and 48
+    keyInfoHkdf[infoLen + 1] = L;
+
+    HKDF256::ExtractExpand(
+        okmHkdf,
+        L,
+        ikmHkdf,
+        seed.size() + 1,
+        saltHkdf,
+        20,
+        keyInfoHkdf,
+        infoLen + 2);
+
+    bn_t order;
+    bn_new(order);          // Make a 1024 (minimum - might be 1025 or 2050) bit integer
+    g1_get_ord(order);
+
+    // Make sure private key is less than the curve order
+    bn_t *skBn = Util::SecAlloc<bn_t>(1);
+    bn_new(*skBn);
+    bn_read_bin(*skBn, okmHkdf, L);
+    bn_mod_basic(*skBn, *skBn, order);      // Modulo for huge numbers
+
+    uint8_t *skBytes = Util::SecAlloc<uint8_t>(32);
+    bn_write_bin(skBytes, 32, *skBn);
+    PrivateKey k = PrivateKey::FromBytes(Bytes(skBytes, 32));
+
+    Util::SecFree(prk);
+    Util::SecFree(ikmHkdf);
+    Util::SecFree(skBn);
+    Util::SecFree(okmHkdf);
+    Util::SecFree(skBytes);
+
+    return k;
+}
+

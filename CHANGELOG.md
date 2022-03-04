@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - XMR, HNS, and ERG support
 - Confirmation prompt when choosing a password for your mnemonic phrase
-- `xpub` keys for BTC and LTC
+- `xpub` keys for BTC, LTC, and HNS
 - Release jar and convenience scripts
 - Option to force overwrite of output file
 - Option to print output to console instead of file
@@ -43,9 +43,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2021-04-18
 ### Added
 - Initial commit
-- Can generate offline wallets using either a random seed or an existing BIP39 mnemonic
-- Saves wallet and addresses to plaintext file
-- Supports BTC, LTC, DOGE, ETH, XRP, XLM, ALGO, AVAX
+- Generate offline wallets using either a random seed or an existing BIP39 mnemonic
+- Save wallet and addresses to plaintext file
+- BTC, LTC, DOGE, ETH, XRP, XLM, ALGO, and AVAX support
 
 [Unreleased]: https://github.com/ashelkovnykov/offline-wallet-generator/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ashelkovnykov/offline-wallet-generator/releases/tag/v0.1.0
