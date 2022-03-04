@@ -6,9 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Add Handshake
-- Add Chia
-- Update all java & import versions to latest
 - Refactor terminology from "cold & hot" to "solo & multi"
 - Add coin subcommands for "solo" wallets
   - XRP: option to use secp256k1 or ed25519
@@ -31,14 +28,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 ### Added
-- XMR support
+- XMR, HNS, and ERG support
 - Confirmation prompt when choosing a password for your mnemonic phrase
 - `xpub` keys for BTC and LTC
 - Release jar and convenience scripts
 - Option to force overwrite of output file
 - Option to print output to console instead of file
 - Option to output private/public keys
-- ERG support
 ### Changed
 - Default XRP address  uses curve secp256k1 instead of ed25519
 - CLI now uses commands instead of options to determine the type of wallet to create (cold/hot)
