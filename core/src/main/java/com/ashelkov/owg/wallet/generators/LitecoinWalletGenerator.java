@@ -92,7 +92,7 @@ public class LitecoinWalletGenerator extends WalletGenerator {
         unencodedAddressWithWitness[0] = WITNESS_VERSION;
         System.arraycopy(unencodedAddress, 0, unencodedAddressWithWitness, 1, unencodedAddress.length);
 
-        String address = Bech32.encode(BECH32_HRP, unencodedAddressWithWitness);
+        String address = Bech32.encode(Bech32.Encoding.BECH32, BECH32_HRP, unencodedAddressWithWitness);
 
         String privKeyText = null;
         String pubKeyText = null;

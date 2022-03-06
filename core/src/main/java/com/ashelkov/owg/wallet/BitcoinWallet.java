@@ -8,7 +8,7 @@ import com.ashelkov.owg.bip.Coin;
 
 import static com.ashelkov.owg.bip.Constants.BIP84_PURPOSE;
 
-public class BitcoinWallet extends ColdWallet {
+public class BitcoinWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.BTC;
     public static final int PURPOSE = BIP84_PURPOSE;

@@ -7,7 +7,7 @@ import com.ashelkov.owg.address.BIP44Address;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class XRPWallet extends ColdWallet {
+public class XRPWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.XRP;
     public static final int PURPOSE = BIP44_PURPOSE;

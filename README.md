@@ -58,20 +58,29 @@ Usage: <main class> [options] [command] [command options]
       Number of bits of entropy for randomly generated seed (must be 128-256 & 
       multiple of 32)
       Default: 256
+    -f, --format
+      Generated wallet output format
+      Default: WALLET
+      Possible Values: [CONSOLE, SECURE_CONSOLE, WALLET]
     -h, --help
       Show this usage details page
     -p, --mnemonic-password
       Password for mnemonic used to generate wallet master key
-    -o, --output-location
-      Output directory or path for wallet file
+    -o, --output-file
+      Directory or path for output files
       Default: /home/ashelkov/.wallets
     -w, --overwrite
-      Overwrite wallet if already exists?
+      Overwrite wallet if already exists
       Default: false
-
+    -K, --priv
+      Output the private keys for each generated address
+      Default: false
+    -k, --pub
+      Output the public keys for each generated address
+      Default: false
   Commands:
-    cold      Generate a wallet for a single cryptocurrency
-      Usage: cold [options]
+    solo      Generate a wallet for a single cryptocurrency
+      Usage: solo [options]
         Options:
           -a, --account
             BIP 44 account field for address
@@ -81,37 +90,37 @@ Usage: <main class> [options] [command] [command options]
             BIP 44 change field for address
         * -c, --coin
             Crypto currency code of coin for which to generate wallet
-            Possible Values: [BTC, LTC, DOGE, ETH, XMR, XRP, XLM, ALGO, AVAX]
+            Possible Values: [BTC, LTC, DOGE, ETH, XMR, XRP, XLM, ALGO, ERG, HNS, AVAX]
           -n, --num-addresses
             Number of addresses to generate
             Default: 1
 
-    hot      Generate a wallet for multiple cryptocurrencies
-      Usage: hot
+    multi      Generate a wallet for multiple cryptocurrencies
+      Usage: multi
 ```
 
 #### Examples
 
-Generate a cold wallet for the first 10 Dogecoin addresses, using a custom mnemonic and password:
+Generate a wallet file for the first 10 Dogecoin addresses using a custom mnemonic, custom password, and the default
+output directory:
 
 ```shell
-bin/release.sh \
--o ~/.wallets/cold/doge.wal \
+./bin/release.sh \
 -m \
 -p \
-cold \
+solo \
 --coin=DOGE \
 -n=10
 ```
 
-Generate a cold wallet for Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/0'/2'/1'/4'` using a random 12-word mnemonic
-and no password:
+Generate a wallet file for the Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/0'/2'/1'/4'` using a random 12-word
+mnemonic, no password, and a custom output directory:
 
 ```shell
-bin/release.sh \
--o ~/.wallets/cold/btc.wal \
+./bin/release.sh \
+-o ~/btc/BTC-1.wal \
 -e 128 \
-cold \
+solo \
 -c=BTC \
 --account=2 \
 --change=1 \
@@ -119,22 +128,21 @@ cold \
 --num-addresses=2
 ```
 
-Generate a hot wallet file containing the default address for every supported coin:
+Generate a multi-coin wallet containing the default address for every supported coin using a random 24-word mnemonic, no
+password, and output the results to the console:
 
 ```shell
-bin/release.sh \
--o ~/.wallets/hot.wal \
--m \
--p \
-hot
+./bin/release.sh \
+-f CONSOLE \
+multi
 ```
 
 ### Output
 
 This tool generates the mnemonic, the specified address(es), and its/their BIP 44/84 path(s). Unless a custom name and
 location are specified, the wallet will be written to one of the locations specified below, determined by operating
-system. The name of the file will be `{coin}.wal`, where `{coin}` is the cryptocurrency code of the wallet, if its a
-cold wallet. The name of the file will be `hot.wal` if its a hot wallet.
+system. The name of the file will be `{coin}.wal`, where `{coin}` is the cryptocurrency code of the wallet, if it's a
+single-coin wallet. The name of the file will be `multi.wal` if it's a multi-coin wallet.
 
 #### Linux
 ```

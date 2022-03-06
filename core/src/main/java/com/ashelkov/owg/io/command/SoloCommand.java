@@ -14,7 +14,7 @@ import com.ashelkov.owg.io.validation.*;
 @Parameters(
         separators = "=",
         commandDescription = "Generate a wallet for a single cryptocurrency")
-final public class ColdCommand {
+final public class SoloCommand {
 
     //
     // CLI Parameter Constants
@@ -78,13 +78,13 @@ final public class ColdCommand {
     // Singleton Setup
     //
 
-    private static ColdCommand singleton = null;
+    private static SoloCommand singleton = null;
 
-    private ColdCommand() {}
+    private SoloCommand() {}
 
-    public static ColdCommand getInstance() {
+    public static SoloCommand getInstance() {
         if (singleton == null) {
-            singleton = new ColdCommand();
+            singleton = new SoloCommand();
         }
 
         return singleton;

@@ -7,7 +7,7 @@ import com.ashelkov.owg.address.BIP44Address;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class AvalancheWallet extends ColdWallet {
+public class AvalancheWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.AVAX;
     public static final int PURPOSE = BIP44_PURPOSE;

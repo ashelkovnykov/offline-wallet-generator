@@ -1,6 +1,12 @@
 allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'idea'
+
+    tasks.withType(JavaCompile).all { JavaCompile compile ->
+        compile.options.compilerArgs = [
+                "-Xlint:deprecation"
+        ]
+    }
 }
 
 subprojects {
@@ -51,7 +57,6 @@ subprojects {
         }
     }
 
-    // This task allows to get the dependencies from all the sub-project from the main photon-ml directory
-    // (otherwise, you have to change to each sub-project directory to get its dependencies)
+    // This task allows to get the dependencies for all the sub-projects from the main directory
     task allDeps(type: DependencyReportTask) {}
 }

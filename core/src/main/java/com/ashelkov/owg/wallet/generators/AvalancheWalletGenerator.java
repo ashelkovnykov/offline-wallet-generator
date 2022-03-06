@@ -90,6 +90,7 @@ public class AvalancheWalletGenerator extends WalletGenerator {
         addressBuilder.append(CHAIN_DELIMITER);
         addressBuilder.append(
                 Bech32.encode(
+                        Bech32.Encoding.BECH32,
                         BECH32_HRP,
                         EncodingUtils.to5BitBytesSafe(
                                 Hash.sha256hash160(

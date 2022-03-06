@@ -7,7 +7,7 @@ import com.ashelkov.owg.address.BIP44Address;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class MoneroWallet extends ColdWallet {
+public class MoneroWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.XMR;
     public static final int PURPOSE = BIP44_PURPOSE;
