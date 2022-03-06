@@ -7,7 +7,7 @@ import com.ashelkov.owg.address.BIP44Address;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class StellarWallet extends ColdWallet {
+public class StellarWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.XLM;
     public static final int PURPOSE = BIP44_PURPOSE;

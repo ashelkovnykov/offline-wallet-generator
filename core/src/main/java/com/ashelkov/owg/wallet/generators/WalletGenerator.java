@@ -1,7 +1,7 @@
 package com.ashelkov.owg.wallet.generators;
 
 import com.ashelkov.owg.bip.Coin;
-import com.ashelkov.owg.wallet.ColdWallet;
+import com.ashelkov.owg.wallet.SingleCoinWallet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,11 +36,11 @@ public abstract class WalletGenerator {
     protected abstract void logWarning(String field, int val);
     protected abstract void logMissing(String field);
 
-    public abstract ColdWallet generateWallet(
+    public abstract SingleCoinWallet generateWallet(
             Integer account,
             Integer change,
             Integer index,
             int numAddresses);
 
-    public abstract ColdWallet generateDefaultWallet();
+    public abstract SingleCoinWallet generateDefaultWallet();
 }

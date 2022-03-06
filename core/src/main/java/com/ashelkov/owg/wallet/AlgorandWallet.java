@@ -7,7 +7,7 @@ import com.ashelkov.owg.address.BIP44Address;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class AlgorandWallet extends ColdWallet {
+public class AlgorandWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.ALGO;
     public static final int PURPOSE = BIP44_PURPOSE;

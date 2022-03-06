@@ -6,7 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Refactor terminology from "cold & hot" to "solo & multi"
 - Add coin subcommands for "solo" wallets
   - XRP: option to use secp256k1 or ed25519
   - XMR: view/spend keys
@@ -36,8 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to print output to console instead of file
 - Option to output private/public keys
 ### Changed
-- Default XRP address  uses curve secp256k1 instead of ed25519
-- CLI now uses commands instead of options to determine the type of wallet to create (cold/hot)
+- Default XRP address uses curve secp256k1 instead of ed25519
+- Replaced CLI "cold"/"hot" options with "solo"/"multi" commands
 - Default file name
 - Output file no longer overwrites existing file by default
 

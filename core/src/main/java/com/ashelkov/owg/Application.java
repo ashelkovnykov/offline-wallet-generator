@@ -11,8 +11,8 @@ import org.web3j.crypto.MnemonicUtils;
 import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.Params;
 import com.ashelkov.owg.util.Utils;
-import com.ashelkov.owg.wallet.ColdWallet;
-import com.ashelkov.owg.wallet.HotWallet;
+import com.ashelkov.owg.wallet.SingleCoinWallet;
+import com.ashelkov.owg.wallet.MultiCoinWallet;
 import com.ashelkov.owg.wallet.Wallet;
 import com.ashelkov.owg.wallet.generators.WalletGenerator;
 import com.ashelkov.owg.wallet.generators.WalletGeneratorFactory;
@@ -24,9 +24,9 @@ public final class Application {
 
     private Application() {}
 
-    private static HotWallet generateHotWallet(byte[] seed) {
+    private static MultiCoinWallet generateMultiWallet(byte[] seed) {
 
-        List<ColdWallet> subwallets = new ArrayList<>(Coin.values().length);
+        List<SingleCoinWallet> subWallets = new ArrayList<>(Coin.values().length);
 
         for (Coin coin : Coin.values()) {
             WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
@@ -34,10 +34,10 @@ public final class Application {
                     seed,
                     params.isGenPrivKey(),
                     params.isGenPubKey());
-            subwallets.add(walletGenerator.generateDefaultWallet());
+            subWallets.add(walletGenerator.generateDefaultWallet());
         }
 
-        return new HotWallet(subwallets);
+        return new MultiCoinWallet(subWallets);
     }
 
     public static void main(String[] args) {
@@ -96,7 +96,7 @@ public final class Application {
         Wallet wallet;
 
         switch (params.getCommand()) {
-            case Params.COMMAND_COLD -> {
+            case Params.COMMAND_SOLO -> {
 
                     WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
                             params.getCoin(),
@@ -110,8 +110,8 @@ public final class Application {
                         params.getNumAddresses());
                 }
 
-            case Params.COMMAND_HOT ->
-                wallet = generateHotWallet(seedFromMnemonic);
+            case Params.COMMAND_MULTI ->
+                wallet = generateMultiWallet(seedFromMnemonic);
 
             default ->
                 throw new IllegalArgumentException("Unrecognized command");

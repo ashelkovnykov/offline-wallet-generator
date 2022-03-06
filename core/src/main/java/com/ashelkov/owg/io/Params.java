@@ -11,8 +11,8 @@ import com.beust.jcommander.converters.PathConverter;
 import org.apache.commons.lang3.SystemUtils;
 
 import com.ashelkov.owg.bip.Coin;
-import com.ashelkov.owg.io.command.ColdCommand;
-import com.ashelkov.owg.io.command.HotCommand;
+import com.ashelkov.owg.io.command.SoloCommand;
+import com.ashelkov.owg.io.command.MultiCommand;
 import com.ashelkov.owg.io.conversion.OutputFormatConverter;
 import com.ashelkov.owg.io.storage.OutputFormat;
 import com.ashelkov.owg.io.storage.Writer;
@@ -126,11 +126,11 @@ final public class Params {
     // CLI Commands
     //
 
-    private static ColdCommand coldCommand = ColdCommand.getInstance();
-    private static HotCommand hotCommand = HotCommand.getInstance();
+    private static SoloCommand soloCommand = SoloCommand.getInstance();
+    private static MultiCommand multiCommand = MultiCommand.getInstance();
 
-    public static final String COMMAND_COLD = "cold";
-    public static final String COMMAND_HOT = "hot";
+    public static final String COMMAND_SOLO = "solo";
+    public static final String COMMAND_MULTI = "multi";
 
     //
     // Singleton Setup
@@ -147,8 +147,8 @@ final public class Params {
             commander = JCommander
                     .newBuilder()
                     .addObject(singleton)
-                    .addCommand(COMMAND_COLD, coldCommand)
-                    .addCommand(COMMAND_HOT, hotCommand)
+                    .addCommand(COMMAND_SOLO, soloCommand)
+                    .addCommand(COMMAND_MULTI, multiCommand)
                     .build();
         }
 
@@ -215,23 +215,23 @@ final public class Params {
     }
 
     public Coin getCoin() {
-        return coldCommand.getCoin();
+        return soloCommand.getCoin();
     }
 
     public Integer getAccount() {
-        return coldCommand.getAccount();
+        return soloCommand.getAccount();
     }
 
     public Integer getChange() {
-        return coldCommand.getChange();
+        return soloCommand.getChange();
     }
 
     public Integer getIndex() {
-        return coldCommand.getIndex();
+        return soloCommand.getIndex();
     }
 
     public Integer getNumAddresses() {
-        return coldCommand.getNumAddresses();
+        return soloCommand.getNumAddresses();
     }
 
     //

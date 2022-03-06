@@ -8,7 +8,7 @@ import com.ashelkov.owg.bip.Coin;
 
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
-public class HandshakeWallet extends ColdWallet {
+public class HandshakeWallet extends SingleCoinWallet {
 
     public static final Coin COIN = Coin.HNS;
     public static final int PURPOSE = BIP44_PURPOSE;

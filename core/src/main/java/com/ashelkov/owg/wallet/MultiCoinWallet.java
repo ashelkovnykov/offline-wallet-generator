@@ -2,14 +2,14 @@ package com.ashelkov.owg.wallet;
 
 import java.util.List;
 
-public class HotWallet extends Wallet {
+public class MultiCoinWallet extends Wallet {
 
-    private static final String ID = "hot";
+    private static final String ID = "multi";
 
-    protected final List<ColdWallet> subwallets;
+    protected final List<SingleCoinWallet> subWallets;
 
-    public HotWallet(List<ColdWallet> subwallets) {
-        this.subwallets = subwallets;
+    public MultiCoinWallet(List<SingleCoinWallet> subWallets) {
+        this.subWallets = subWallets;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class HotWallet extends Wallet {
 
         StringBuilder result = new StringBuilder();
 
-        for (ColdWallet wallet : subwallets) {
+        for (SingleCoinWallet wallet : subWallets) {
             result.append("\n\n");
             result.append(wallet.toString());
         }
