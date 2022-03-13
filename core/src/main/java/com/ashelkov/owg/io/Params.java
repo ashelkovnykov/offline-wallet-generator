@@ -263,6 +263,10 @@ final public class Params {
         };
     }
 
+    public boolean isLegacy() {
+        return XRP_COMMAND.isLegacy();
+    }
+
     //
     // Methods
     //

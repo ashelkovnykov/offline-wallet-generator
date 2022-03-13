@@ -22,20 +22,18 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
     private final byte[] seed;
+    private final boolean legacy;
 
-    public XRPWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+    public XRPWalletGenerator(byte[] seed, boolean legacy, boolean genPrivKey, boolean genPubKey) {
         super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
         this.seed = seed;
+        this.legacy = legacy;
     }
 
     @Override
     public XRPWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new XRPWallet(wrapper);
+        return generateWallet(DEFAULT_FIELD_VAL, 1);
     }
 
     @Override
@@ -44,7 +42,15 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
         for(int i = account; i < (account + numAddresses); ++i) {
-            addresses.add(generateAddress(i));
+
+            BIP44Address address;
+            if (legacy) {
+                address = generateAddressSECP256k1(i);
+            } else {
+                address = generateAddressED25519(i);
+            }
+
+            addresses.add(address);
         }
 
         return new XRPWallet(addresses);
@@ -57,7 +63,7 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
      * @param account
      * @return
      */
-    private BIP44Address generateAddress(int account) {
+    private BIP44Address generateAddressSECP256k1(int account) {
 
         int[] addressPath = getAddressPath(account);
 

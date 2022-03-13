@@ -32,7 +32,7 @@ public final class Application {
             case DOGE -> new DogecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
             case ETH -> new EthereumWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
             case XMR -> new MoneroWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case XRP -> new XRPWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case XRP -> new XRPWalletGenerator(seed, params.isLegacy(), params.isGenPrivKey(), params.isGenPubKey());
             case XLM -> new StellarWalletGenerator(seed, params.isGenPrivKey());
             case ALGO -> new AlgorandWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
             case ERG -> new ErgoWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
