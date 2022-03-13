@@ -13,7 +13,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class AvalancheWalletGenerator extends WalletGenerator {
+public class AvalancheWalletGenerator extends IndexWalletGenerator {
 
     // 3 Base chains in Avalanche: Exchange (X), Platform (P), and Contracts (C)
     private static final String CHAIN_CODE = "X";
@@ -31,28 +31,16 @@ public class AvalancheWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, AvalancheWallet.COIN, val);
+    public AvalancheWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new AvalancheWallet(wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, AvalancheWallet.COIN);
-    }
-
-    @Override
-    public AvalancheWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account != null) {
-            logWarning(ACCOUNT, account);
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public AvalancheWallet generateWallet(int index, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
@@ -61,15 +49,6 @@ public class AvalancheWalletGenerator extends WalletGenerator {
         }
 
         return new AvalancheWallet(addresses);
-    }
-
-    @Override
-    public AvalancheWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new AvalancheWallet(wrapper);
     }
 
     /**

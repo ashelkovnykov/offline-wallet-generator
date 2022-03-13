@@ -14,7 +14,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.SHA_512_256;
 
-public class AlgorandWalletGenerator extends WalletGenerator {
+public class AlgorandWalletGenerator extends AccountWalletGenerator {
 
     private static final int ADDRESS_LENGTH = 58;
     private static final int CHECKSUM_BYTES = 4;
@@ -32,28 +32,16 @@ public class AlgorandWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, AlgorandWallet.COIN, val);
+    public AlgorandWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new AlgorandWallet(wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, AlgorandWallet.COIN);
-    }
-
-    @Override
-    public AlgorandWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
+    public AlgorandWallet generateWallet(int account, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
@@ -62,15 +50,6 @@ public class AlgorandWalletGenerator extends WalletGenerator {
         }
 
         return new AlgorandWallet(addresses);
-    }
-
-    @Override
-    public AlgorandWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new AlgorandWallet(wrapper);
     }
 
     private BIP44Address generateAddress(int account) {

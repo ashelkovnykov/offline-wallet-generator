@@ -15,7 +15,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class DogecoinWalletGenerator extends WalletGenerator {
+public class DogecoinWalletGenerator extends ACIWalletGenerator {
 
     private static final byte DOGE_IDENTIFICATION_PREFIX = (byte)0x9E;
     private static final int P2PKH_VERSION = 30;
@@ -28,16 +28,6 @@ public class DogecoinWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, DogecoinWallet.COIN, val);
-    }
-
-    @Override
-    protected void logMissing(String field) {
-        logMissing(field, DogecoinWallet.COIN);
-    }
-
-    @Override
     public DogecoinWallet generateDefaultWallet() {
 
         List<BIP44Address> wrapper = new ArrayList<>(1);
@@ -47,20 +37,7 @@ public class DogecoinWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    public DogecoinWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change == null) {
-            logMissing(CHANGE);
-            change = DEFAULT_FIELD_VAL;
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public DogecoinWallet generateWallet(int account, int change, int index, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 

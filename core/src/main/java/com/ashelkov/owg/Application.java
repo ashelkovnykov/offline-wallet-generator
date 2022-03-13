@@ -10,12 +10,13 @@ import org.web3j.crypto.MnemonicUtils;
 
 import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.Params;
+import com.ashelkov.owg.io.command.MultiCommand;
+import com.ashelkov.owg.io.command.SoloCommand;
 import com.ashelkov.owg.util.Utils;
 import com.ashelkov.owg.wallet.SingleCoinWallet;
 import com.ashelkov.owg.wallet.MultiCoinWallet;
 import com.ashelkov.owg.wallet.Wallet;
-import com.ashelkov.owg.wallet.generators.WalletGenerator;
-import com.ashelkov.owg.wallet.generators.WalletGeneratorFactory;
+import com.ashelkov.owg.wallet.generators.*;
 
 public final class Application {
 
@@ -23,18 +24,34 @@ public final class Application {
     private static final Params params = Params.getInstance();
 
     private Application() {}
+    
+    private static WalletGenerator getWalletGenerator(Coin coin, byte[] seed) {
+        return switch (coin) {
+            case BTC -> new BitcoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case LTC -> new LitecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case DOGE -> new DogecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case ETH -> new EthereumWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case XMR -> new MoneroWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case XRP -> new XRPWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case XLM -> new StellarWalletGenerator(seed, params.isGenPrivKey());
+            case ALGO -> new AlgorandWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case ERG -> new ErgoWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case HNS -> new HandshakeWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case AVAX -> new AvalancheWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+        };
+    }
 
     private static MultiCoinWallet generateMultiWallet(byte[] seed) {
 
         List<SingleCoinWallet> subWallets = new ArrayList<>(Coin.values().length);
 
         for (Coin coin : Coin.values()) {
-            WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
-                    coin,
-                    seed,
-                    params.isGenPrivKey(),
-                    params.isGenPubKey());
-            subWallets.add(walletGenerator.generateDefaultWallet());
+            try {
+                WalletGenerator walletGenerator = getWalletGenerator(coin, seed);
+                subWallets.add(walletGenerator.generateDefaultWallet());
+            } catch (Exception e) {
+                System.exit(1);
+            }
         }
 
         return new MultiCoinWallet(subWallets);
@@ -93,24 +110,19 @@ public final class Application {
         // Generate wallet/addresses
         //
 
-        Wallet wallet;
+        Wallet wallet = null;
 
         switch (params.getCommand()) {
-            case Params.COMMAND_SOLO -> {
-
-                    WalletGenerator walletGenerator = WalletGeneratorFactory.getGenerator(
-                            params.getCoin(),
-                            seedFromMnemonic,
-                            params.isGenPrivKey(),
-                            params.isGenPubKey());
-                    wallet = walletGenerator.generateWallet(
-                        params.getAccount(),
-                        params.getChange(),
-                        params.getIndex(),
-                        params.getNumAddresses());
+            case SoloCommand.NAME -> {
+                try {
+                    WalletGenerator walletGenerator = getWalletGenerator(params.getCoin(), seedFromMnemonic);
+                    wallet = walletGenerator.generatePathWallet(params.getBipPath(), params.getNumAddresses());
+                } catch (Exception e) {
+                    System.exit(1);
                 }
+            }
 
-            case Params.COMMAND_MULTI ->
+            case MultiCommand.NAME ->
                 wallet = generateMultiWallet(seedFromMnemonic);
 
             default ->

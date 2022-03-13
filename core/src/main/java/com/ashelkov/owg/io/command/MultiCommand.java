@@ -8,6 +8,8 @@ import com.beust.jcommander.Parameters;
 @Parameters(commandDescription = "Generate a wallet for multiple cryptocurrencies")
 final public class MultiCommand {
 
+    public static final String NAME = "multi";
+
     //
     // Singleton Setup
     //

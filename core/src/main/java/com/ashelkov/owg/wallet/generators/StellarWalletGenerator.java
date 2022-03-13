@@ -10,7 +10,7 @@ import com.ashelkov.owg.wallet.StellarWallet;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class StellarWalletGenerator extends WalletGenerator {
+public class StellarWalletGenerator extends AccountWalletGenerator {
 
     private final byte[] seed;
 
@@ -20,28 +20,16 @@ public class StellarWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, StellarWallet.COIN, val);
+    public StellarWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new StellarWallet(wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, StellarWallet.COIN);
-    }
-
-    @Override
-    public StellarWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
+    public StellarWallet generateWallet(int account, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
@@ -50,15 +38,6 @@ public class StellarWalletGenerator extends WalletGenerator {
         }
 
         return new StellarWallet(addresses);
-    }
-
-    @Override
-    public StellarWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new StellarWallet(wrapper);
     }
 
     private BIP44Address generateAddress(int account) {

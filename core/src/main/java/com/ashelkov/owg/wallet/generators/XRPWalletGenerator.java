@@ -15,7 +15,7 @@ import com.ashelkov.owg.wallet.XRPWallet;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class XRPWalletGenerator extends WalletGenerator {
+public class XRPWalletGenerator extends AccountWalletGenerator {
 
     private static final byte MASTER_PUB_KEY_PREFIX = (byte)0xED;
     private static final byte PAYLOAD_PREFIX = (byte)0x00;
@@ -30,28 +30,16 @@ public class XRPWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, XRPWallet.COIN, val);
+    public XRPWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new XRPWallet(wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, XRPWallet.COIN);
-    }
-
-    @Override
-    public XRPWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
+    public XRPWallet generateWallet(int account, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
@@ -60,15 +48,6 @@ public class XRPWalletGenerator extends WalletGenerator {
         }
 
         return new XRPWallet(addresses);
-    }
-
-    @Override
-    public XRPWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new XRPWallet(wrapper);
     }
 
     /**

@@ -16,7 +16,7 @@ import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.KECCAK_256;
 
-public class MoneroWalletGenerator extends WalletGenerator {
+public class MoneroWalletGenerator extends AccountWalletGenerator {
 
     // Network byte represents which network the byte is for: 18 = mainnet, 53 = testnet
     public static final byte NETWORK_BYTE = 0x12;
@@ -32,28 +32,16 @@ public class MoneroWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, MoneroWallet.COIN, val);
+    public MoneroWallet generateDefaultWallet() {
+
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+
+        return new MoneroWallet(wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, MoneroWallet.COIN);
-    }
-
-    @Override
-    public MoneroWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
+    public MoneroWallet generateWallet(int account, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
@@ -62,15 +50,6 @@ public class MoneroWalletGenerator extends WalletGenerator {
         }
 
         return new MoneroWallet(addresses);
-    }
-
-    @Override
-    public MoneroWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new MoneroWallet(wrapper);
     }
 
     private BIP44Address generateAddress(int account) {

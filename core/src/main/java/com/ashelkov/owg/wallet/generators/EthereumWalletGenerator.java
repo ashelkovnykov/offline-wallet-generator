@@ -12,23 +12,13 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class EthereumWalletGenerator extends WalletGenerator {
+public class EthereumWalletGenerator extends IndexWalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
 
     public EthereumWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
         super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
-    }
-
-    @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, EthereumWallet.COIN, val);
-    }
-
-    @Override
-    protected void logMissing(String field) {
-        logMissing(field, EthereumWallet.COIN);
     }
 
     @Override
@@ -41,18 +31,7 @@ public class EthereumWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    public EthereumWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account != null) {
-            logWarning(ACCOUNT, account);
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public EthereumWallet generateWallet(int index, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 
