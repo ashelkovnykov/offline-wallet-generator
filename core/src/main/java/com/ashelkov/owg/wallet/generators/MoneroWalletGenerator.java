@@ -7,6 +7,7 @@ import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
 import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec;
 
 import com.ashelkov.owg.address.BIP44Address;
+import com.ashelkov.owg.address.MoneroAddress;
 import com.ashelkov.owg.wallet.MoneroWallet;
 import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.Ed25519Utils;
@@ -25,10 +26,14 @@ public class MoneroWalletGenerator extends AccountWalletGenerator {
             EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519);
 
     private final byte[] seed;
+    private final boolean genSpendKey;
+    private final boolean genViewKey;
 
-    public MoneroWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+    public MoneroWalletGenerator(byte[] seed, boolean genViewKey, boolean genSpendKey,  boolean genPrivKey) {
+        super(genPrivKey, false);
         this.seed = seed;
+        this.genViewKey = genViewKey;
+        this.genSpendKey = genSpendKey;
     }
 
     @Override
@@ -85,8 +90,31 @@ public class MoneroWalletGenerator extends AccountWalletGenerator {
         System.arraycopy(checksum, 0, rawAddressChecksum, 65, CHECKSUM_LENGTH);
 
         String address = EncodingUtils.base58Monero(rawAddressChecksum);
+        
+        String publicViewKeyText = null;
+        String publicSpendKeyText = null;
+        String privateViewKeyText = null;
+        String privateSpendKeyText = null;
+        if (genViewKey) {
+            if (genPrivKey) {
+                privateViewKeyText = EncodingUtils.bytesToHex(privateViewKey);
+            }
+            publicViewKeyText = EncodingUtils.bytesToHex(publicViewKey);
+        }
+        if (genSpendKey) {
+            if (genPrivKey) {
+                privateSpendKeyText = EncodingUtils.bytesToHex(privateSpendKey);
+            }
+            publicSpendKeyText = EncodingUtils.bytesToHex(publicSpendKey);
+        }
 
-        return new BIP44Address(address, addressPath);
+        return new MoneroAddress(
+                address,
+                addressPath,
+                privateViewKeyText,
+                privateSpendKeyText,
+                publicViewKeyText,
+                publicSpendKeyText);
     }
 
     private int[] getAddressPath(int account) {

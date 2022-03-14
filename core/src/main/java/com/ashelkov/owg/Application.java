@@ -27,17 +27,38 @@ public final class Application {
     
     private static WalletGenerator getWalletGenerator(Coin coin, byte[] seed) {
         return switch (coin) {
-            case BTC -> new BitcoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case LTC -> new LitecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case DOGE -> new DogecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case ETH -> new EthereumWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case XMR -> new MoneroWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case XRP -> new XRPWalletGenerator(seed, params.isLegacy(), params.isGenPrivKey(), params.isGenPubKey());
-            case XLM -> new StellarWalletGenerator(seed, params.isGenPrivKey());
-            case ALGO -> new AlgorandWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case ERG -> new ErgoWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case HNS -> new HandshakeWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
-            case AVAX -> new AvalancheWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+            case BTC ->
+                new BitcoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case LTC ->
+                new LitecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case DOGE ->
+                new DogecoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case ETH ->
+                new EthereumWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case XMR ->
+                new MoneroWalletGenerator(seed, params.isGenViewKey(), params.isGenSpendKey(), params.isGenPrivKey());
+
+            case XRP ->
+                new XRPWalletGenerator(seed, params.isLegacy(), params.isGenPrivKey(), params.isGenPubKey());
+
+            case XLM ->
+                new StellarWalletGenerator(seed, params.isGenPrivKey());
+
+            case ALGO ->
+                new AlgorandWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case ERG ->
+                new ErgoWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case HNS ->
+                new HandshakeWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+
+            case AVAX ->
+                new AvalancheWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
         };
     }
 

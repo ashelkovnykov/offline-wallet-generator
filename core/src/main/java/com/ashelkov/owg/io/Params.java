@@ -263,6 +263,14 @@ final public class Params {
         };
     }
 
+    public boolean isGenSpendKey() {
+        return MONERO_COMMAND.isGenSpendKey();
+    }
+
+    public boolean isGenViewKey() {
+        return MONERO_COMMAND.isGenViewKey();
+    }
+
     public boolean isLegacy() {
         return XRP_COMMAND.isLegacy();
     }
