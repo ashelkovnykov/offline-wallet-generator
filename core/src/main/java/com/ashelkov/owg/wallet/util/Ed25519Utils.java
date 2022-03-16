@@ -2,8 +2,11 @@ package com.ashelkov.owg.wallet.util;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
+import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 
+import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
+import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,6 +14,12 @@ public class Ed25519Utils {
 
     private static final Logger logger = LoggerFactory.getLogger(Ed25519Utils.class);
     private static final String HMAC_SHA_512_ALGORITHM = "HmacSHA512";
+
+    public static final BigInteger L = new BigInteger("2")
+            .pow(252)
+            .add(new BigInteger("27742317777372353535851937790883648493"));
+    public static final EdDSAParameterSpec ED_25519_CURVE_SPEC =
+            EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519);
 
     private static int load_3(byte[] in, int offset) {
         int result = in[offset++] & 0xff;
