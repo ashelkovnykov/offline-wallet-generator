@@ -195,4 +195,22 @@ public class EncodingUtils {
         }
         return new String(hexChars, StandardCharsets.UTF_8);
     }
+
+    public static byte[] intToFourBytes(int i, boolean isLittleEndian) {
+        byte[] result = new byte[4];
+
+        if (isLittleEndian) {
+            for (int j = 0; j < 4; j++) {
+                result[j] = (byte)(i >> (j * 8));
+            }
+        } else {
+            for (int j = 0; j < 4; j++) {
+                result[3 - j] = (byte)(i >> (j * 8));
+            }
+        }
+
+        return result;
+    }
+
+    private EncodingUtils() {}
 }
