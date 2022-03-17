@@ -6,11 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Add coin subcommands for "solo" wallets
-  - XRP: option to use secp256k1 or ed25519
-  - XMR: view/spend keys
-  - XMR: sub-addresses
-  - AVAX: P-Chain addresses
+- Additional safety checks in API (e.g. valid paths, etc.)
 - Run via Docker
 - Separate API from CLI
 - Documentation
@@ -29,23 +25,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - XMR, HNS, and ERG support
 - Confirmation prompt when choosing a password for your mnemonic phrase
-- `xpub` keys for BTC and LTC
+- `xpub` keys for BTC, LTC, and HNS
 - Release jar and convenience scripts
 - Option to force overwrite of output file
 - Option to print output to console instead of file
 - Option to output private/public keys
+- Option to use curve ed25519 or secp256k1 for XRP
+- XMR subaddresses
+- AVAX C-chain and P-chain support
 ### Changed
-- Default XRP address uses curve secp256k1 instead of ed25519
-- Replaced CLI "cold"/"hot" options with "solo"/"multi" commands
-- Default file name
-- Output file no longer overwrites existing file by default
+- Replace CLI "cold"/"hot" options with "solo"/"multi" commands
+- Replace coin option with subcommands for "solo" wallets
+- Change default file name
+- No longer overwrite existing wallet file by default
 
 ## [0.1.0] - 2021-04-18
 ### Added
 - Initial commit
-- Can generate offline wallets using either a random seed or an existing BIP39 mnemonic
-- Saves wallet and addresses to plaintext file
-- Supports BTC, LTC, DOGE, ETH, XRP, XLM, ALGO, AVAX
+- Generate offline wallets using either a random seed or an existing BIP39 mnemonic
+- Save wallet and addresses to plaintext file
+- BTC, LTC, DOGE, ETH, XRP, XLM, ALGO, and AVAX support
 
 [Unreleased]: https://github.com/ashelkovnykov/offline-wallet-generator/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/ashelkovnykov/offline-wallet-generator/releases/tag/v0.1.0
