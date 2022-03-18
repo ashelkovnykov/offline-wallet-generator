@@ -12,6 +12,9 @@ import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.Params;
 import com.ashelkov.owg.io.command.MultiCommand;
 import com.ashelkov.owg.io.command.SoloCommand;
+import com.ashelkov.owg.io.command.coin.AvalancheCommand;
+import com.ashelkov.owg.io.command.coin.MoneroCommand;
+import com.ashelkov.owg.io.command.coin.XRPCommand;
 import com.ashelkov.owg.util.Utils;
 import com.ashelkov.owg.wallet.SingleCoinWallet;
 import com.ashelkov.owg.wallet.MultiCoinWallet;
@@ -40,10 +43,18 @@ public final class Application {
                 new EthereumWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
 
             case XMR ->
-                new MoneroWalletGenerator(seed, params.isGenViewKey(), params.isGenSpendKey(), params.isGenPrivKey());
+                new MoneroWalletGenerator(
+                        seed,
+                        MoneroCommand.getInstance().isGenViewKey(),
+                        MoneroCommand.getInstance().isGenSpendKey(),
+                        params.isGenPrivKey());
 
             case XRP ->
-                new XRPWalletGenerator(seed, params.isLegacy(), params.isGenPrivKey(), params.isGenPubKey());
+                new XRPWalletGenerator(
+                        seed,
+                        XRPCommand.getInstance().isLegacy(),
+                        params.isGenPrivKey(),
+                        params.isGenPubKey());
 
             case XLM ->
                 new StellarWalletGenerator(seed, params.isGenPrivKey());
@@ -58,7 +69,11 @@ public final class Application {
                 new HandshakeWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
 
             case AVAX ->
-                new AvalancheWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
+                new AvalancheWalletGenerator(
+                        seed,
+                        AvalancheCommand.getInstance().getChains(),
+                        params.isGenPrivKey(),
+                        params.isGenPubKey());
         };
     }
 

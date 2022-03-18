@@ -1,13 +1,18 @@
 package com.ashelkov.owg.wallet.generators;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bitcoinj.core.Bech32;
 import org.web3j.crypto.Bip32ECKeyPair;
 import org.web3j.crypto.Hash;
+import org.web3j.crypto.Keys;
 
+import com.ashelkov.owg.address.AvalancheAddress;
 import com.ashelkov.owg.address.BIP44Address;
+import com.ashelkov.owg.coin.avax.Chain;
 import com.ashelkov.owg.wallet.AvalancheWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
@@ -16,7 +21,9 @@ import static com.ashelkov.owg.bip.Constants.HARDENED;
 public class AvalancheWalletGenerator extends IndexWalletGenerator {
 
     // 3 Base chains in Avalanche: Exchange (X), Platform (P), and Contracts (C)
-    private static final String CHAIN_CODE = "X";
+    private static final Map<Chain, String> CHAIN_CODE_MAP = Map.of(
+            Chain.EXCHANGE, "X",
+            Chain.PLATFORM, "P");
     private static final String CHAIN_DELIMITER = "-";
     private static final String BECH32_HRP = "avax";
 
@@ -24,10 +31,12 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
     private static final int ADDRESS_LENGTH = 45;
 
     private final Bip32ECKeyPair masterKeyPair;
+    private final List<Chain> addressChains;
 
-    public AvalancheWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+    public AvalancheWalletGenerator(byte[] seed, List<Chain> addressChains, boolean genPrivKey, boolean genPubKey) {
         super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
+        this.addressChains = addressChains;
     }
 
     @Override
@@ -63,9 +72,30 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
 
         int[] addressPath = getAddressPath(index);
         Bip32ECKeyPair derivedKeyPair = Bip32ECKeyPair.deriveKeyPair(masterKeyPair, addressPath);
+        Map<Chain, String> addresses = new HashMap<>(addressChains.size());
 
+        for (Chain chain : addressChains) {
+            String address;
+
+            switch (chain) {
+                case CONTRACT: {
+                    address = Keys.toChecksumAddress(Keys.getAddress(derivedKeyPair));
+                    break;
+                }
+
+                default:
+                    address = generateBech32Address(derivedKeyPair, chain);
+            }
+
+            addresses.put(chain, address);
+        }
+
+        return new AvalancheAddress(addresses, addressPath);
+    }
+
+    private String generateBech32Address(Bip32ECKeyPair keyPair, Chain chain) {
         StringBuilder addressBuilder = new StringBuilder(ADDRESS_LENGTH);
-        addressBuilder.append(CHAIN_CODE);
+        addressBuilder.append(CHAIN_CODE_MAP.get(chain));
         addressBuilder.append(CHAIN_DELIMITER);
         addressBuilder.append(
                 Bech32.encode(
@@ -73,19 +103,9 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
                         BECH32_HRP,
                         EncodingUtils.to5BitBytesSafe(
                                 Hash.sha256hash160(
-                                        derivedKeyPair
-                                                .getPublicKeyPoint()
-                                                .getEncoded(true)))));
+                                        keyPair.getPublicKeyPoint().getEncoded(true)))));
 
-        // TODO: Move to test
-//        byte[] test1 = new byte[] {(byte)0xf8, (byte)0x3e, (byte)0x0f, (byte)0x83, (byte)0xe0};
-//        logger.info(Arrays.toString(EncodingUtils.to5BitBytesSafe(test1)));
-//        byte[] test2 = new byte[] {(byte)0x07, (byte)0xc1, (byte)0xf0, (byte)0x7c, (byte)0x1f};
-//        logger.info(Arrays.toString(EncodingUtils.to5BitBytesSafe(test2)));
-
-        String address = addressBuilder.toString();
-
-        return new BIP44Address(address, addressPath);
+        return addressBuilder.toString();
     }
 
     private int[] getAddressPath(int index) {
