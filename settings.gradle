@@ -1,3 +1,4 @@
 rootProject.name = "offline-wallet-generator"
 
+include 'cli'
 include 'core'

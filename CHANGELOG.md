@@ -8,7 +8,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Short-term
 - Additional safety checks in API (e.g. valid paths, etc.)
 - Run via Docker
-- Separate API from CLI
 - Documentation
 
 ### Long-term
@@ -38,6 +37,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Replace coin option with subcommands for "solo" wallets
 - Change default file name
 - No longer overwrite existing wallet file by default
+- Move CLI into separate module
 
 ## [0.1.0] - 2021-04-18
 ### Added
