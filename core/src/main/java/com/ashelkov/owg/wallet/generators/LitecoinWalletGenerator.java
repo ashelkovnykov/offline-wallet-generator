@@ -15,7 +15,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class LitecoinWalletGenerator extends WalletGenerator {
+public class LitecoinWalletGenerator extends ACIWalletGenerator {
 
     private static final String BECH32_HRP = "ltc";
     private static final byte WITNESS_VERSION = (byte)0x00;
@@ -33,30 +33,17 @@ public class LitecoinWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, LitecoinWallet.COIN, val);
+    public LitecoinWallet generateDefaultWallet() {
+
+        BIP84Address masterPubKey = generateExtendedKey(DEFAULT_FIELD_VAL);
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateDerivedAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
+
+        return new LitecoinWallet(masterPubKey, wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, LitecoinWallet.COIN);
-    }
-
-    @Override
-    public LitecoinWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change == null) {
-            logMissing(CHANGE);
-            change = DEFAULT_FIELD_VAL;
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public LitecoinWallet generateWallet(int account, int change, int index, int numAddresses) {
 
         BIP84Address masterPubKey = generateExtendedKey(account);
 
@@ -66,16 +53,6 @@ public class LitecoinWalletGenerator extends WalletGenerator {
         }
 
         return new LitecoinWallet(masterPubKey, derivedAddresses);
-    }
-
-    @Override
-    public LitecoinWallet generateDefaultWallet() {
-
-        BIP84Address masterPubKey = generateExtendedKey(DEFAULT_FIELD_VAL);
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateDerivedAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
-
-        return new LitecoinWallet(masterPubKey, wrapper);
     }
 
     private BIP84Address generateDerivedAddress(int account, int change, int index) {

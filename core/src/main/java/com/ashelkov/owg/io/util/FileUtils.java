@@ -10,14 +10,9 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import static java.nio.charset.StandardCharsets.US_ASCII;
 
 public class FileUtils {
-
-    private static final Logger logger = LoggerFactory.getLogger(FileUtils.class);
 
     private static final Set<PosixFilePermission> DEFAULT_DIR_PERMISSIONS =
             PosixFilePermissions.fromString("rwxr-x---");
@@ -82,4 +77,6 @@ public class FileUtils {
 
         return path;
     }
+
+    private FileUtils() {}
 }

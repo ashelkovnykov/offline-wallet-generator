@@ -16,7 +16,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class BitcoinWalletGenerator extends WalletGenerator {
+public class BitcoinWalletGenerator extends ACIWalletGenerator {
 
     private static final String BECH32_HRP = "bc";
     private static final byte WITNESS_VERSION = (byte)0x00;
@@ -47,30 +47,17 @@ public class BitcoinWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, BitcoinWallet.COIN, val);
+    public BitcoinWallet generateDefaultWallet() {
+
+        BIP84Address masterPubKey = generateExtendedKey(DEFAULT_FIELD_VAL);
+        List<BIP44Address> wrapper = new ArrayList<>(1);
+        wrapper.add(generateDerivedAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
+
+        return new BitcoinWallet(masterPubKey, wrapper);
     }
 
     @Override
-    protected void logMissing(String field) {
-        logMissing(field, BitcoinWallet.COIN);
-    }
-
-    @Override
-    public BitcoinWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change == null) {
-            logMissing(CHANGE);
-            change = DEFAULT_FIELD_VAL;
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public BitcoinWallet generateWallet(int account, int change, int index, int numAddresses) {
 
         BIP84Address masterPubKey = generateExtendedKey(account);
 
@@ -80,16 +67,6 @@ public class BitcoinWalletGenerator extends WalletGenerator {
         }
 
         return new BitcoinWallet(masterPubKey, derivedAddresses);
-    }
-
-    @Override
-    public BitcoinWallet generateDefaultWallet() {
-
-        BIP84Address masterPubKey = generateExtendedKey(DEFAULT_FIELD_VAL);
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateDerivedAddress(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL));
-
-        return new BitcoinWallet(masterPubKey, wrapper);
     }
 
     private BIP84Address generateDerivedAddress(int account, int change, int index) {

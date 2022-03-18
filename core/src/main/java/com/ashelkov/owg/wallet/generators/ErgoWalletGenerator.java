@@ -13,7 +13,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class ErgoWalletGenerator extends WalletGenerator {
+public class ErgoWalletGenerator extends IndexWalletGenerator {
 
     // First 4 bits:
     // 0x00 = Mainnet
@@ -33,16 +33,6 @@ public class ErgoWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, ErgoWallet.COIN, val);
-    }
-
-    @Override
-    protected void logMissing(String field) {
-        logMissing(field, ErgoWallet.COIN);
-    }
-
-    @Override
     public ErgoWallet generateDefaultWallet() {
 
         List<BIP44Address> wrapper = new ArrayList<>(1);
@@ -52,18 +42,7 @@ public class ErgoWalletGenerator extends WalletGenerator {
     }
 
     @Override
-    public ErgoWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account != null) {
-            logWarning(ACCOUNT, account);
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index == null) {
-            logMissing(INDEX);
-            index = DEFAULT_FIELD_VAL;
-        }
+    public ErgoWallet generateWallet(int index, int numAddresses) {
 
         List<BIP44Address> addresses = new ArrayList<>(numAddresses);
 

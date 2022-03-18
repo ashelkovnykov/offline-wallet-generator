@@ -15,60 +15,45 @@ import com.ashelkov.owg.wallet.XRPWallet;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
-public class XRPWalletGenerator extends WalletGenerator {
+public class XRPWalletGenerator extends AccountWalletGenerator {
 
     private static final byte MASTER_PUB_KEY_PREFIX = (byte)0xED;
     private static final byte PAYLOAD_PREFIX = (byte)0x00;
 
     private final Bip32ECKeyPair masterKeyPair;
     private final byte[] seed;
+    private final boolean legacy;
 
-    public XRPWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+    public XRPWalletGenerator(byte[] seed, boolean legacy, boolean genPrivKey, boolean genPubKey) {
         super(genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
         this.seed = seed;
-    }
-
-    @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, XRPWallet.COIN, val);
-    }
-
-    @Override
-    protected void logMissing(String field) {
-        logMissing(field, XRPWallet.COIN);
-    }
-
-    @Override
-    public XRPWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
-
-        List<BIP44Address> addresses = new ArrayList<>(numAddresses);
-
-        for(int i = account; i < (account + numAddresses); ++i) {
-            addresses.add(generateAddress(i));
-        }
-
-        return new XRPWallet(addresses);
+        this.legacy = legacy;
     }
 
     @Override
     public XRPWallet generateDefaultWallet() {
+        return generateWallet(DEFAULT_FIELD_VAL, 1);
+    }
 
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
+    @Override
+    public XRPWallet generateWallet(int account, int numAddresses) {
 
-        return new XRPWallet(wrapper);
+        List<BIP44Address> addresses = new ArrayList<>(numAddresses);
+
+        for(int i = account; i < (account + numAddresses); ++i) {
+
+            BIP44Address address;
+            if (legacy) {
+                address = generateAddressSECP256k1(i);
+            } else {
+                address = generateAddressED25519(i);
+            }
+
+            addresses.add(address);
+        }
+
+        return new XRPWallet(addresses);
     }
 
     /**
@@ -78,7 +63,7 @@ public class XRPWalletGenerator extends WalletGenerator {
      * @param account
      * @return
      */
-    private BIP44Address generateAddress(int account) {
+    private BIP44Address generateAddressSECP256k1(int account) {
 
         int[] addressPath = getAddressPath(account);
 

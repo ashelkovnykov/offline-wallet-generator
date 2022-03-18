@@ -1,12 +1,14 @@
 package com.ashelkov.owg.wallet.generators;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.i2p.crypto.eddsa.spec.EdDSANamedCurveTable;
-import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec;
+import net.i2p.crypto.eddsa.math.GroupElement;
+import org.apache.commons.lang3.ArrayUtils;
 
 import com.ashelkov.owg.address.BIP44Address;
+import com.ashelkov.owg.address.MoneroAddress;
 import com.ashelkov.owg.wallet.MoneroWallet;
 import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.Ed25519Utils;
@@ -15,105 +17,181 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.KECCAK_256;
+import static com.ashelkov.owg.wallet.util.Ed25519Utils.ED_25519_CURVE_SPEC;
 
-public class MoneroWalletGenerator extends WalletGenerator {
+public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
 
-    // Network byte represents which network the byte is for: 18 = mainnet, 53 = testnet
-    public static final byte NETWORK_BYTE = 0x12;
-
-    private static final EdDSAParameterSpec ED_DSA_PARAMETER_SPEC =
-            EdDSANamedCurveTable.getByName(EdDSANamedCurveTable.ED_25519);
+    // All Monero addresses use the same path, but different seeds (not actually sure if the Monero standard is to end
+    // the BIP44 path with a hardened 0 account, though)
+    public static final int[] ADDRESS_PATH =  {
+            MoneroWallet.PURPOSE | HARDENED,
+            MoneroWallet.COIN.getCode() | HARDENED,
+            HARDENED
+    };
+    // "SubAddr" as byte array
+    public static final byte[] SUBADDRESS_PREFIX = {
+        (byte)0x53,
+        (byte)0x75,
+        (byte)0x62,
+        (byte)0x41,
+        (byte)0x64,
+        (byte)0x64,
+        (byte)0x72,
+        (byte)0x00
+    };
+    // Prefix + Standard Private View Key + Account + Index = 8 + 32 + 4 + 4 = 48
+    public static final int SUBADDRESS_BASE_LENGTH = 48;
+    // "Network bytes" represent the network and address type
+    // Standard addresses:  18 = mainnet, 53 = testnet
+    // Subaddresses:        42 = mainnet, 63 = testnet, 36 = stagenet
+    public static final byte MAINNET_ADDRESS_NETWORK_BYTE = 0x12;
+    public static final byte MAINNET_SUBADDRESS_NETWORK_BYTE = 0x2a;
 
     private final byte[] seed;
+    private final boolean genSpendKey;
+    private final boolean genViewKey;
 
-    public MoneroWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+    public MoneroWalletGenerator(
+            byte[] seed,
+            boolean genViewKey,
+            boolean genSpendKey,
+            boolean genPrivKey)
+    {
+        super(genPrivKey, false);
         this.seed = seed;
-    }
-
-    @Override
-    protected void logWarning(String field, int val) {
-        logWarning(field, MoneroWallet.COIN, val);
-    }
-
-    @Override
-    protected void logMissing(String field) {
-        logMissing(field, MoneroWallet.COIN);
-    }
-
-    @Override
-    public MoneroWallet generateWallet(Integer account, Integer change, Integer index, int numAddresses) {
-
-        if (account == null) {
-            logMissing(ACCOUNT);
-            account = DEFAULT_FIELD_VAL;
-        }
-        if (change != null) {
-            logWarning(CHANGE, change);
-        }
-        if (index != null) {
-            logWarning(INDEX, index);
-        }
-
-        List<BIP44Address> addresses = new ArrayList<>(numAddresses);
-
-        for(int i = account; i < (account + numAddresses); ++i) {
-            addresses.add(generateAddress(i));
-        }
-
-        return new MoneroWallet(addresses);
+        this.genViewKey = genViewKey;
+        this.genSpendKey = genSpendKey;
     }
 
     @Override
     public MoneroWallet generateDefaultWallet() {
-
-        List<BIP44Address> wrapper = new ArrayList<>(1);
-        wrapper.add(generateAddress(DEFAULT_FIELD_VAL));
-
-        return new MoneroWallet(wrapper);
+        return generateWallet(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, 1);
     }
 
-    private BIP44Address generateAddress(int account) {
-
-        int[] addressPath = getAddressPath(account);
-
-        byte[] privateSpendKey = Ed25519Utils.reduce32(Ed25519Utils.deriveEd25519PrivateKey(seed, addressPath));
-        // TODO: Need better solution for this
-        byte[] privateViewKey;
-        try {
-            privateViewKey = Ed25519Utils.reduce32(DigestUtils.digest(KECCAK_256, privateSpendKey));
-        } catch (Exception e) {
-            privateViewKey = new byte[0];
+    @Override
+    public MoneroWallet generateWallet(int account, int index, int numAddresses) {
+        // If the user wants more than 1 address, they actually want subaddresses. However, subaddress 0,0 is the
+        // standard address, so we need to increment numAddresses by 1.
+        if ((account == 0) && (index == 0) && (numAddresses > 1)) {
+            numAddresses += 1;
         }
-        byte[] publicSpendKey = ED_DSA_PARAMETER_SPEC.getB().scalarMultiply(privateSpendKey).toByteArray();
-        byte[] publicViewKey = ED_DSA_PARAMETER_SPEC.getB().scalarMultiply(privateViewKey).toByteArray();
+        List<BIP44Address> addresses = new ArrayList<>(numAddresses);
+        boolean hasSubaddresses = (numAddresses > 1) || (account != 0) || (index != 0);
 
+        byte[] privateSpendKey = Ed25519Utils.reduce32(Ed25519Utils.deriveEd25519PrivateKey(seed, ADDRESS_PATH));
+        byte[] privateViewKey = Ed25519Utils.reduce32(DigestUtils.unsafeDigest(KECCAK_256, privateSpendKey));
+        GroupElement publicSpendKey = ED_25519_CURVE_SPEC.getB().scalarMultiply(privateSpendKey);
+        GroupElement publicViewKey = ED_25519_CURVE_SPEC.getB().scalarMultiply(privateViewKey);
+
+        for(int i = index; i < (index + numAddresses); ++i) {
+
+            MoneroAddress address;
+            int[] subaddressPath = getSubaddressPath(account, i);
+
+            if ((account == 0) && (i == 0)) {
+                address = generateMoneroAddress(
+                        MAINNET_ADDRESS_NETWORK_BYTE,
+                        subaddressPath,
+                        publicSpendKey.toByteArray(),
+                        publicViewKey.toByteArray());
+            } else {
+                address = generateSubaddress(
+                        subaddressPath,
+                        publicSpendKey,
+                        privateViewKey,
+                        account,
+                        i);
+            }
+
+            addresses.add(address);
+        }
+
+        String privateSpendKeyText = null;
+        String privateViewKeyText = null;
+        if (genPrivKey) {
+            if (genSpendKey) {
+                privateSpendKeyText = EncodingUtils.bytesToHex(privateSpendKey);
+            }
+            if (genViewKey) {
+                privateViewKeyText = EncodingUtils.bytesToHex(privateViewKey);
+            }
+        }
+
+        return new MoneroWallet(addresses, privateSpendKeyText, privateViewKeyText, hasSubaddresses);
+    }
+
+    /**
+     * https://monerodocs.org/public-address/subaddress/
+     *
+     * @param addressPath
+     * @param standardPrivateViewKey
+     * @param standardPublicSpendKey
+     * @param account
+     * @param index
+     * @return
+     */
+    private MoneroAddress generateSubaddress(
+            int[] addressPath,
+            GroupElement standardPublicSpendKey,
+            byte[] standardPrivateViewKey,
+            int account,
+            int index)
+    {
+        byte[] mBase = new byte[SUBADDRESS_BASE_LENGTH];
+        System.arraycopy(SUBADDRESS_PREFIX, 0, mBase, 0, 8);
+        System.arraycopy(standardPrivateViewKey, 0, mBase, 8, 32);
+        System.arraycopy(EncodingUtils.intToFourBytes(account, true), 0, mBase, 40, 4);
+        System.arraycopy(EncodingUtils.intToFourBytes(index,true ), 0, mBase, 44, 4);
+
+        byte[] mHash = DigestUtils.unsafeDigest(KECCAK_256, mBase);
+        ArrayUtils.reverse(mHash);
+        byte[] m = new BigInteger(mHash).mod(Ed25519Utils.L).toByteArray();
+        ArrayUtils.reverse(m);
+
+        GroupElement D = ED_25519_CURVE_SPEC.getB().scalarMultiply(m).add(standardPublicSpendKey.toCached());
+        GroupElement C = ED_25519_CURVE_SPEC
+                .getCurve()
+                .createPoint(D.toByteArray(), true)
+                .scalarMultiply(standardPrivateViewKey);
+
+        return generateMoneroAddress(MAINNET_SUBADDRESS_NETWORK_BYTE, addressPath, D.toByteArray(), C.toByteArray());
+    }
+
+    private MoneroAddress generateMoneroAddress(
+            byte networkByte,
+            int[] addressPath,
+            byte[] publicSpendKey,
+            byte[] publicViewKey)
+    {
         byte[] rawAddressNoChecksum = new byte[65];
-        rawAddressNoChecksum[0] = NETWORK_BYTE;
+        rawAddressNoChecksum[0] = networkByte;
         System.arraycopy(publicSpendKey, 0, rawAddressNoChecksum, 1, 32);
         System.arraycopy(publicViewKey, 0, rawAddressNoChecksum, 33, 32);
 
-        // TODO: Need better solution for this
-        byte[] checksum;
-        try {
-            checksum = DigestUtils.digest(KECCAK_256, rawAddressNoChecksum);
-        } catch (Exception e) {
-            checksum = new byte[0];
-        }
-
+        byte[] checksum = DigestUtils.unsafeDigest(KECCAK_256, rawAddressNoChecksum);
         byte[] rawAddressChecksum = new byte[69];
         System.arraycopy(rawAddressNoChecksum, 0, rawAddressChecksum, 0, 65);
         System.arraycopy(checksum, 0, rawAddressChecksum, 65, CHECKSUM_LENGTH);
 
         String address = EncodingUtils.base58Monero(rawAddressChecksum);
 
-        return new BIP44Address(address, addressPath);
+        String publicSpendKeyText = null;
+        String publicViewKeyText = null;
+        if (genSpendKey) {
+            publicSpendKeyText = EncodingUtils.bytesToHex(publicSpendKey);
+        }
+        if (genViewKey) {
+            publicViewKeyText = EncodingUtils.bytesToHex(publicViewKey);
+        }
+
+        return new MoneroAddress(address, addressPath, publicSpendKeyText, publicViewKeyText);
     }
 
-    private int[] getAddressPath(int account) {
+    private int[] getSubaddressPath(int account, int index) {
         int purpose = MoneroWallet.PURPOSE | HARDENED;
         int coinCode = MoneroWallet.COIN.getCode() | HARDENED;
 
-        return new int[] {purpose, coinCode, account | HARDENED};
+        // Since this path is for printing and not key generation, account and index definitely should not be hardened
+        return new int[] {purpose, coinCode, account, index};
     }
 }

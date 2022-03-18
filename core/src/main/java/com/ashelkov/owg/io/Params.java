@@ -13,10 +13,12 @@ import org.apache.commons.lang3.SystemUtils;
 import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.command.SoloCommand;
 import com.ashelkov.owg.io.command.MultiCommand;
+import com.ashelkov.owg.io.command.coin.*;
 import com.ashelkov.owg.io.conversion.OutputFormatConverter;
 import com.ashelkov.owg.io.storage.OutputFormat;
 import com.ashelkov.owg.io.storage.Writer;
 import com.ashelkov.owg.io.storage.WriterFactory;
+import com.ashelkov.owg.io.util.CommandUtils;
 import com.ashelkov.owg.io.validation.*;
 
 /**
@@ -62,6 +64,27 @@ final public class Params {
     private static final OutputFormat DEFAULT_OUTPUT_TYPE = OutputFormat.WALLET;
     private static final Path DEFAULT_OUTPUT_DIR = Paths.get(getDefaultWalletDir());
     private static final Integer DEFAULT_ENTROPY = 256;
+
+    //
+    // CLI Commands
+    //
+
+    // Main commands
+    private static final SoloCommand SOLO_COMMAND = SoloCommand.getInstance();
+    private static final MultiCommand MULTI_COMMAND = MultiCommand.getInstance();
+
+    // Solo subcommands
+    private static final BitcoinCommand BITCOIN_COMMAND = BitcoinCommand.getInstance();
+    private static final LitecoinCommand LITECOIN_COMMAND = LitecoinCommand.getInstance();
+    private static final DogecoinCommand DOGECOIN_COMMAND = DogecoinCommand.getInstance();
+    private static final EthereumCommand ETHEREUM_COMMAND = EthereumCommand.getInstance();
+    private static final MoneroCommand MONERO_COMMAND = MoneroCommand.getInstance();
+    private static final XRPCommand XRP_COMMAND = XRPCommand.getInstance();
+    private static final StellarCommand STELLAR_COMMAND = StellarCommand.getInstance();
+    private static final AlgorandCommand ALGORAND_COMMAND = AlgorandCommand.getInstance();
+    private static final ErgoCommand ERGO_COMMAND = ErgoCommand.getInstance();
+    private static final HandshakeCommand HANDSHAKE_COMMAND = HandshakeCommand.getInstance();
+    private static final AvalancheCommand AVALANCHE_COMMAND = AvalancheCommand.getInstance();
 
     //
     // CLI Parameters
@@ -123,16 +146,6 @@ final public class Params {
     private boolean help;
 
     //
-    // CLI Commands
-    //
-
-    private static SoloCommand soloCommand = SoloCommand.getInstance();
-    private static MultiCommand multiCommand = MultiCommand.getInstance();
-
-    public static final String COMMAND_SOLO = "solo";
-    public static final String COMMAND_MULTI = "multi";
-
-    //
     // Singleton Setup
     //
 
@@ -147,9 +160,21 @@ final public class Params {
             commander = JCommander
                     .newBuilder()
                     .addObject(singleton)
-                    .addCommand(COMMAND_SOLO, soloCommand)
-                    .addCommand(COMMAND_MULTI, multiCommand)
+                    .addCommand(SoloCommand.NAME, SOLO_COMMAND)
+                    .addCommand(MultiCommand.NAME, MULTI_COMMAND)
                     .build();
+
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.BTC.name(), BITCOIN_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.LTC.name(), LITECOIN_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.DOGE.name(), DOGECOIN_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.ETH.name(), ETHEREUM_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.XMR.name(), MONERO_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.XRP.name(), XRP_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.XLM.name(), STELLAR_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.ALGO.name(), ALGORAND_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.ERG.name(), ERGO_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.HNS.name(), HANDSHAKE_COMMAND);
+            CommandUtils.addSubCommand(commander, SoloCommand.NAME, Coin.AVAX.name(), AVALANCHE_COMMAND);
         }
 
         return singleton;
@@ -215,23 +240,27 @@ final public class Params {
     }
 
     public Coin getCoin() {
-        return soloCommand.getCoin();
-    }
-
-    public Integer getAccount() {
-        return soloCommand.getAccount();
-    }
-
-    public Integer getChange() {
-        return soloCommand.getChange();
-    }
-
-    public Integer getIndex() {
-        return soloCommand.getIndex();
+        return Coin.valueOf(commander.findCommandByAlias(SoloCommand.NAME).getParsedCommand());
     }
 
     public Integer getNumAddresses() {
-        return soloCommand.getNumAddresses();
+        return SOLO_COMMAND.getNumAddresses();
+    }
+
+    public int[] getBipPath() {
+        return switch (getCoin()) {
+            case BTC -> BITCOIN_COMMAND.getBipPath();
+            case LTC -> LITECOIN_COMMAND.getBipPath();
+            case DOGE -> DOGECOIN_COMMAND.getBipPath();
+            case ETH -> ETHEREUM_COMMAND.getBipPath();
+            case XMR -> MONERO_COMMAND.getBipPath();
+            case XRP -> XRP_COMMAND.getBipPath();
+            case XLM -> STELLAR_COMMAND.getBipPath();
+            case ALGO -> ALGORAND_COMMAND.getBipPath();
+            case ERG -> ERGO_COMMAND.getBipPath();
+            case HNS -> HANDSHAKE_COMMAND.getBipPath();
+            case AVAX -> AVALANCHE_COMMAND.getBipPath();
+        };
     }
 
     //

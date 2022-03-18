@@ -12,8 +12,20 @@ public class MoneroWallet extends SingleCoinWallet {
     public static final Coin COIN = Coin.XMR;
     public static final int PURPOSE = BIP44_PURPOSE;
 
-    public MoneroWallet(List<BIP44Address> derivedAddresses) {
+    private final String privateSpendKey;
+    private final String privateViewKey;
+    private final boolean hasSubaddresses;
+
+    public MoneroWallet(
+            List<BIP44Address> derivedAddresses,
+            String privateSpendKey,
+            String privateViewKey,
+            boolean hasSubaddresses)
+    {
         super(derivedAddresses);
+        this.privateSpendKey = privateSpendKey;
+        this.privateViewKey = privateViewKey;
+        this.hasSubaddresses = hasSubaddresses;
     }
 
     @Override
@@ -26,13 +38,30 @@ public class MoneroWallet extends SingleCoinWallet {
 
         StringBuilder result = new StringBuilder();
 
+        // warn users of subaddress risks
+        if (hasSubaddresses) {
+            result.append("WARNING: Monero subaddresses are not fully supported by most Monero wallets.\n");
+            result.append("         You should think of them as an experimental convenience feature.\n");
+            result.append("         Do your own research and use them at your own risk!\n");
+        }
+
         // append coin name
         result.append(COIN);
         result.append(':');
 
+        // append private spend/view keys, if present
+        if (privateSpendKey != null) {
+            result.append("\nPRIV SPEND =\t");
+            result.append(privateSpendKey);
+        }
+        if (privateViewKey != null) {
+            result.append("\nPRIV VIEW =\t");
+            result.append(privateViewKey);
+        }
+
         // append addresses
         for (BIP44Address address : addresses) {
-            result.append('\n');
+            result.append("\n\n");
             result.append(address.toString());
         }
 
