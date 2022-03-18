@@ -3,7 +3,7 @@ package com.ashelkov.owg.io.validation;
 import com.beust.jcommander.IValueValidator;
 import com.beust.jcommander.ParameterException;
 
-import static com.ashelkov.owg.Constants.ADDRESS_LIMIT;
+import static com.ashelkov.owg.io.Constants.ADDRESS_LIMIT;
 
 public class AddressLimitValidator implements IValueValidator<Integer> {
 

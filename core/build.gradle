@@ -1,13 +1,10 @@
 plugins {
     id 'java'
-    id 'application'
 }
 
 dependencies {
     implementation 'com.algorand:algosdk:1.12.0'
-    implementation 'com.beust:jcommander:1.82'
     implementation 'com.github.stellar:java-stellar-sdk:0.31.0'
-    implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'org.bitcoinj:bitcoinj-core:0.16.1'
     implementation 'org.slf4j:slf4j-api:1.7.36'
     implementation 'org.slf4j:slf4j-jdk14:1.7.36'
@@ -17,21 +14,7 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
 }
 
-// Class to run using 'run' task introduced by 'application' plugin
-mainClassName = "com.ashelkov.owg.Application"
-
-// Set Java logging settings
-run {
-    systemProperties['java.util.logging.config.file'] = 'src/main/resources/logging.properties'
-}
-
 jar {
-    manifest {
-        attributes(
-            'Main-Class': mainClassName
-        )
-    }
-
     from {
         configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
     }

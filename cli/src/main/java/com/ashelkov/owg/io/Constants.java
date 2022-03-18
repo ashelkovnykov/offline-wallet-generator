@@ -1,4 +1,4 @@
-package com.ashelkov.owg;
+package com.ashelkov.owg.io;
 
 public class Constants {
 
