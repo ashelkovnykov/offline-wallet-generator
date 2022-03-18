@@ -3,21 +3,112 @@ package com.ashelkov.owg.wallet.util;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+import org.web3j.crypto.Hash;
+
 /**
  *
  */
 public class EncodingUtils {
 
-    public static final int MONERO_HOP = 8;
-    public static final int MONERO_RES_LONG = 11;
-    public static final int MONERO_RES_SHORT = 7;
-
     private static final char[] BITCOIN_ALPHABET =
             "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
     private static final char[] RIPPLE_ALPHABET =
             "rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz".toCharArray();
-
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private static final int CHECKSUM_BYTES = 4;
+
+    public static final int MONERO_HOP = 8;
+    public static final int MONERO_RES_LONG = 11;
+    public static final int MONERO_RES_SHORT = 7;
+
+    private static String doEncodeBase58(byte[] input, char[] alphabet) {
+        return doEncodeBase58(input, alphabet, false);
+    }
+
+    /**
+     *
+     * NOTE: This code is mostly copied from...
+     * https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
+     *
+     * ================================================================================================================
+     *
+     * Encodes the given bytes as a base58 string (no checksum is appended).
+     *
+     * @param rawInput the bytes to encode
+     * @param alphabet
+     * @param checksum
+     * @return the base58-encoded string
+     */
+    private static String doEncodeBase58(byte[] rawInput, char[] alphabet, boolean checksum) {
+        if (rawInput.length == 0) {
+            return "";
+        }
+
+        // Append checksum, if necessary.
+        byte[] input;
+        if (checksum) {
+            input = EncodingUtils.appendChecksum(rawInput);
+        } else {
+            input = rawInput;
+        }
+
+        // Count leading zeros.
+        int zeros = 0;
+        while (zeros < input.length && input[zeros] == 0) {
+            ++zeros;
+        }
+
+        // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
+        input = Arrays.copyOf(input, input.length); // since we modify it in-place
+        char[] encoded = new char[input.length * 2]; // upper bound
+        int outputStart = encoded.length;
+        for (int inputStart = zeros; inputStart < input.length; ) {
+            encoded[--outputStart] = alphabet[divmod(input, inputStart, 256, 58)];
+            if (input[inputStart] == 0) {
+                ++inputStart; // optimization - skip leading zeros
+            }
+        }
+
+        // Preserve exactly as many leading encoded zeros in output as there were leading zeros in input.
+        char encodedZero = alphabet[0];
+        while (outputStart < encoded.length && encoded[outputStart] == encodedZero) {
+            ++outputStart;
+        }
+        while (--zeros >= 0) {
+            encoded[--outputStart] = encodedZero;
+        }
+
+        // Return encoded string (including encoded leading zeros).
+        return new String(encoded, outputStart, encoded.length - outputStart);
+    }
+
+    /**
+     * Divides a number, represented as an array of bytes each containing a single digit
+     * in the specified base, by the given divisor. The given number is modified in-place
+     * to contain the quotient, and the return value is the remainder.
+     *
+     * @param number the number to divide
+     * @param firstDigit the index within the array of the first non-zero digit
+     *        (this is used for optimization by skipping the leading zeros)
+     * @param base the base in which the number's digits are represented (up to 256)
+     * @param divisor the number to divide by (up to 256)
+     * @return the remainder of the division operation
+     */
+    private static byte divmod(byte[] number, int firstDigit, int base, int divisor) {
+        // this is just long division which accounts for the base of the input digits
+        int remainder = 0;
+        for (int i = firstDigit; i < number.length; i++) {
+            int digit = (int) number[i] & 0xFF;
+            int temp = remainder * base + digit;
+            number[i] = (byte) (temp / divisor);
+            remainder = temp % divisor;
+        }
+        return (byte) remainder;
+    }
+
+    public static String base58Bitcoin(byte[] input, boolean checksum) {
+        return doEncodeBase58(input, BITCOIN_ALPHABET, checksum);
+    }
 
     /**
      * Encodes the given bytes as a base58 string (no checksum is appended) for Bitcoin.
@@ -27,6 +118,10 @@ public class EncodingUtils {
      */
     public static String base58Bitcoin(byte[] input) {
         return doEncodeBase58(input, BITCOIN_ALPHABET);
+    }
+
+    public static String base58Ripple(byte[] input, boolean checksum) {
+        return doEncodeBase58(input, RIPPLE_ALPHABET, checksum);
     }
 
     /**
@@ -74,73 +169,13 @@ public class EncodingUtils {
         return result.toString();
     }
 
-    /**
-     *
-     * NOTE: This code is copied from...
-     * https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
-     *
-     * ================================================================================================================
-     *
-     * Encodes the given bytes as a base58 string (no checksum is appended).
-     *
-     * @param input the bytes to encode
-     * @return the base58-encoded string
-     */
-    private static String doEncodeBase58(byte[] input, char[] alphabet) {
-        if (input.length == 0) {
-            return "";
-        }
+    public static byte[] appendChecksum(byte[] input) {
+        byte[] result = new byte[input.length + CHECKSUM_BYTES];
+        byte[] checksum = Hash.sha256(input);
+        System.arraycopy(input, 0, result, 0, input.length);
+        System.arraycopy(checksum, (32 - CHECKSUM_BYTES), result, input.length, CHECKSUM_BYTES);
 
-        char encodedZero = alphabet[0];
-
-        // Count leading zeros.
-        int zeros = 0;
-        while (zeros < input.length && input[zeros] == 0) {
-            ++zeros;
-        }
-        // Convert base-256 digits to base-58 digits (plus conversion to ASCII characters)
-        input = Arrays.copyOf(input, input.length); // since we modify it in-place
-        char[] encoded = new char[input.length * 2]; // upper bound
-        int outputStart = encoded.length;
-        for (int inputStart = zeros; inputStart < input.length; ) {
-            encoded[--outputStart] = alphabet[divmod(input, inputStart, 256, 58)];
-            if (input[inputStart] == 0) {
-                ++inputStart; // optimization - skip leading zeros
-            }
-        }
-        // Preserve exactly as many leading encoded zeros in output as there were leading zeros in input.
-        while (outputStart < encoded.length && encoded[outputStart] == encodedZero) {
-            ++outputStart;
-        }
-        while (--zeros >= 0) {
-            encoded[--outputStart] = encodedZero;
-        }
-        // Return encoded string (including encoded leading zeros).
-        return new String(encoded, outputStart, encoded.length - outputStart);
-    }
-
-    /**
-     * Divides a number, represented as an array of bytes each containing a single digit
-     * in the specified base, by the given divisor. The given number is modified in-place
-     * to contain the quotient, and the return value is the remainder.
-     *
-     * @param number the number to divide
-     * @param firstDigit the index within the array of the first non-zero digit
-     *        (this is used for optimization by skipping the leading zeros)
-     * @param base the base in which the number's digits are represented (up to 256)
-     * @param divisor the number to divide by (up to 256)
-     * @return the remainder of the division operation
-     */
-    private static byte divmod(byte[] number, int firstDigit, int base, int divisor) {
-        // this is just long division which accounts for the base of the input digits
-        int remainder = 0;
-        for (int i = firstDigit; i < number.length; i++) {
-            int digit = (int) number[i] & 0xFF;
-            int temp = remainder * base + digit;
-            number[i] = (byte) (temp / divisor);
-            remainder = temp % divisor;
-        }
-        return (byte) remainder;
+        return result;
     }
 
     /**

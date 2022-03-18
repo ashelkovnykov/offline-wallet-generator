@@ -1,9 +1,6 @@
 package com.ashelkov.owg.wallet.generators;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.bitcoinj.core.Bech32;
 import org.web3j.crypto.Bip32ECKeyPair;
@@ -24,9 +21,9 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
     private static final Map<Chain, String> CHAIN_CODE_MAP = Map.of(
             Chain.EXCHANGE, "X",
             Chain.PLATFORM, "P");
-    private static final String CHAIN_DELIMITER = "-";
     private static final String BECH32_HRP = "avax";
-
+    private static final String CHAIN_DELIMITER = "-";
+    private static final String PRIVATE_KEY_BASE = "PrivateKey-";
     // [chain code] + [chain delimiter] + [hrp] + "1" + [32 byte address] + [6 byte checksum] = 45
     private static final int ADDRESS_LENGTH = 45;
 
@@ -77,20 +74,36 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
         for (Chain chain : addressChains) {
             String address;
 
-            switch (chain) {
-                case CONTRACT: {
-                    address = Keys.toChecksumAddress(Keys.getAddress(derivedKeyPair));
-                    break;
-                }
-
-                default:
-                    address = generateBech32Address(derivedKeyPair, chain);
+            if (chain == Chain.CONTRACT) {
+                address = Keys.toChecksumAddress(Keys.getAddress(derivedKeyPair));
+            } else {
+                address = generateBech32Address(derivedKeyPair, chain);
             }
 
             addresses.put(chain, address);
         }
 
-        return new AvalancheAddress(addresses, addressPath);
+        String privKeyText = null;
+        String pubKeyText = null;
+        if (genPrivKey) {
+            privKeyText = PRIVATE_KEY_BASE.concat(
+                    EncodingUtils.base58Bitcoin(
+                            // Some Avalanche wallets can import a wallet using a 33-byte encrypted private key, and
+                            // some can't. Therefore, it's safer to use the 32-byte encrypted private key, especially
+                            // since the first byte is always 0. However, due to Java BigIntegers being signed in a
+                            // dumb way, their byte array is *also* sometimes 33 bytes long. Therefore, the safest
+                            // thing to do is to always grab the 33-byte array, and then skip the first byte (In a
+                            // horribly inefficient way, obviously - what do you think this is, C?).
+                            Arrays.copyOfRange(derivedKeyPair.getPrivateKeyBytes33(), 1, 33),
+                            true));
+        }
+        if (genPubKey) {
+            pubKeyText = EncodingUtils.base58Bitcoin(
+                    derivedKeyPair.getPublicKeyPoint().getEncoded(true),
+                    true);
+        }
+
+        return new AvalancheAddress(addresses, addressPath, privKeyText, pubKeyText);
     }
 
     private String generateBech32Address(Bip32ECKeyPair keyPair, Chain chain) {
