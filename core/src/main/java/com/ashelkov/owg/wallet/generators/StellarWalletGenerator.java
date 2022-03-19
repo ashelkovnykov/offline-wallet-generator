@@ -8,15 +8,13 @@ import org.stellar.sdk.KeyPair;
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.StellarWallet;
 
+import static com.ashelkov.owg.bip.Coin.XLM;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class StellarWalletGenerator extends AccountWalletGenerator {
 
-    private final byte[] seed;
-
     public StellarWalletGenerator(byte[] seed, boolean genPrivKey) {
-        super(genPrivKey, false);
-        this.seed = seed;
+        super(seed, genPrivKey, false);
     }
 
     @Override
@@ -57,7 +55,7 @@ public class StellarWalletGenerator extends AccountWalletGenerator {
 
     private int[] getAddressPath(int account) {
         int purpose = StellarWallet.PURPOSE | HARDENED;
-        int coinCode = StellarWallet.COIN.getCode() | HARDENED;
+        int coinCode = XLM.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }

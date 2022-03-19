@@ -6,6 +6,10 @@ public class BIP44Utils {
 
     public static String convertPathToText(int[] path) {
 
+        if (path.length == 0) {
+            throw new IllegalArgumentException("Cannot convert empty path to text");
+        }
+
         StringBuilder result = new StringBuilder();
 
         result.append("m/");

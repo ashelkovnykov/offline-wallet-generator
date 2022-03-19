@@ -9,6 +9,10 @@ public class MultiCoinWallet extends Wallet {
     protected final List<SingleCoinWallet> subWallets;
 
     public MultiCoinWallet(List<SingleCoinWallet> subWallets) {
+        if (subWallets.isEmpty()) {
+            throw new IllegalArgumentException("No subwallets for multi-coin wallet");
+        }
+
         this.subWallets = subWallets;
     }
 

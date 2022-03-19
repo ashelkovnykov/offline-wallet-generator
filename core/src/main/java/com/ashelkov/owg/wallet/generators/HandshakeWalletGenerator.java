@@ -14,6 +14,7 @@ import com.ashelkov.owg.wallet.HandshakeWallet;
 import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.HNS;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class HandshakeWalletGenerator extends ACIWalletGenerator {
@@ -29,7 +30,7 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public HandshakeWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -111,14 +112,14 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
 
     private int[] getAccountAddressPath(int account) {
         int purpose = HandshakeWallet.PURPOSE | HARDENED;
-        int coinCode = HandshakeWallet.COIN.getCode() | HARDENED;
+        int coinCode = HNS.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }
 
     private int[] getDerivedAddressPath(int account, int change, int index) {
         int purpose = HandshakeWallet.PURPOSE | HARDENED;
-        int coinCode = HandshakeWallet.COIN.getCode() | HARDENED;
+        int coinCode = HNS.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }

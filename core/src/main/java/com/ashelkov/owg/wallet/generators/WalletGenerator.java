@@ -12,10 +12,17 @@ public abstract class WalletGenerator {
 
     public static final int DEFAULT_FIELD_VAL = 0;
 
+    protected final byte[] seed;
     protected final boolean genPrivKey;
     protected final boolean genPubKey;
 
-    public WalletGenerator(boolean genPrivKey, boolean genPubKey) {
+    public WalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+
+        if (seed.length == 0) {
+            throw new IllegalArgumentException("Empty seed");
+        }
+
+        this.seed = seed;
         this.genPrivKey = genPrivKey;
         this.genPubKey = genPubKey;
     }

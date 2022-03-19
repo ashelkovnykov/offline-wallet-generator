@@ -9,7 +9,6 @@ import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
 public class MoneroWallet extends SingleCoinWallet {
 
-    public static final Coin COIN = Coin.XMR;
     public static final int PURPOSE = BIP44_PURPOSE;
 
     private final String privateSpendKey;
@@ -22,15 +21,10 @@ public class MoneroWallet extends SingleCoinWallet {
             String privateViewKey,
             boolean hasSubaddresses)
     {
-        super(derivedAddresses);
+        super(derivedAddresses, Coin.XMR);
         this.privateSpendKey = privateSpendKey;
         this.privateViewKey = privateViewKey;
         this.hasSubaddresses = hasSubaddresses;
-    }
-
-    @Override
-    public String getIdentifier() {
-        return COIN.toString();
     }
 
     @Override
@@ -46,7 +40,7 @@ public class MoneroWallet extends SingleCoinWallet {
         }
 
         // append coin name
-        result.append(COIN);
+        result.append(coin);
         result.append(':');
 
         // append private spend/view keys, if present

@@ -11,24 +11,22 @@ import com.ashelkov.owg.wallet.AlgorandWallet;
 import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.ALGO;
+import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.SHA_512_256;
 
 public class AlgorandWalletGenerator extends AccountWalletGenerator {
 
     private static final int ADDRESS_LENGTH = 58;
-    private static final int CHECKSUM_BYTES = 4;
 
     private static final byte[] ENCODE_TABLE = {
         'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
         'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
         '2', '3', '4', '5', '6', '7'};
 
-    private final byte[] seed;
-
     public AlgorandWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
-        this.seed = seed;
+        super(seed, genPrivKey, genPubKey);
     }
 
     @Override
@@ -57,14 +55,14 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
         int[] addressPath = getAddressPath(account);
         byte[] publicKey = KeyPair.fromBip39Seed(seed, account).getPublicKey();
         byte[] checksum = DigestUtils.unsafeDigest(SHA_512_256, publicKey);
-        byte[] unencodedAddress = new byte[publicKey.length + CHECKSUM_BYTES];
+        byte[] unencodedAddress = new byte[publicKey.length + CHECKSUM_LENGTH];
         System.arraycopy(publicKey, 0, unencodedAddress, 0, publicKey.length);
         System.arraycopy(
                 checksum,
-                (checksum.length - CHECKSUM_BYTES),
+                (checksum.length - CHECKSUM_LENGTH),
                 unencodedAddress,
                 publicKey.length,
-                CHECKSUM_BYTES);
+                CHECKSUM_LENGTH);
 
         byte[] encodedAddress = EncodingUtils.to5BitBytesSafe(unencodedAddress);
         // Need to filter down to 58 bytes
@@ -80,7 +78,7 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
 
     private int[] getAddressPath(int account) {
         int purpose = AlgorandWallet.PURPOSE | HARDENED;
-        int coinCode = AlgorandWallet.COIN.getCode() | HARDENED;
+        int coinCode = ALGO.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }

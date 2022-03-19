@@ -13,6 +13,7 @@ import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.wallet.BitcoinWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.BTC;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
@@ -42,7 +43,7 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public BitcoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -123,14 +124,14 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
 
     private int[] getAccountAddressPath(int account) {
         int purpose = BitcoinWallet.PURPOSE | HARDENED;
-        int coinCode = BitcoinWallet.COIN.getCode() | HARDENED;
+        int coinCode = BTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }
 
     private int[] getDerivedAddressPath(int account, int change, int index) {
         int purpose = BitcoinWallet.PURPOSE | HARDENED;
-        int coinCode = BitcoinWallet.COIN.getCode() | HARDENED;
+        int coinCode = BTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }

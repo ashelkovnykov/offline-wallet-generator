@@ -13,6 +13,7 @@ import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.DogecoinWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.DOGE;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class DogecoinWalletGenerator extends ACIWalletGenerator {
@@ -23,7 +24,7 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public DogecoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -80,7 +81,7 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
 
     private int[] getAddressPath(int account, int change, int index) {
         int purpose = DogecoinWallet.PURPOSE | HARDENED;
-        int coinCode = DogecoinWallet.COIN.getCode() | HARDENED;
+        int coinCode = DOGE.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }

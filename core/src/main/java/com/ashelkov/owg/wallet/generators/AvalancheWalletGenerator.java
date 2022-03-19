@@ -13,6 +13,7 @@ import com.ashelkov.owg.coin.avax.Chain;
 import com.ashelkov.owg.wallet.AvalancheWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.AVAX;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class AvalancheWalletGenerator extends IndexWalletGenerator {
@@ -31,7 +32,12 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
     private final List<Chain> addressChains;
 
     public AvalancheWalletGenerator(byte[] seed, List<Chain> addressChains, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
+
+        if (addressChains.isEmpty()) {
+            throw new IllegalArgumentException("No chains selected for AVAX wallet");
+        }
+
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
         this.addressChains = addressChains;
     }
@@ -123,7 +129,7 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
 
     private int[] getAddressPath(int index) {
         int purpose = AvalancheWallet.PURPOSE | HARDENED;
-        int coinCode = AvalancheWallet.COIN.getCode() | HARDENED;
+        int coinCode = AVAX.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 
         return new int[] {purpose, coinCode, account, 0, index};

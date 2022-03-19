@@ -1,14 +1,13 @@
 package com.ashelkov.owg.wallet.generators;
 
-import com.ashelkov.owg.wallet.BitcoinWallet;
 import com.ashelkov.owg.wallet.SingleCoinWallet;
 
 public abstract class ACIWalletGenerator extends WalletGenerator {
 
     private static final int PATH_LENGTH = 3;
 
-    public ACIWalletGenerator(boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+    public ACIWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(seed, genPrivKey, genPubKey);
     }
 
     @Override
