@@ -13,6 +13,7 @@ import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.wallet.LitecoinWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.LTC;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class LitecoinWalletGenerator extends ACIWalletGenerator {
@@ -28,7 +29,7 @@ public class LitecoinWalletGenerator extends ACIWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public LitecoinWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -111,14 +112,14 @@ public class LitecoinWalletGenerator extends ACIWalletGenerator {
 
     private int[] getAccountAddressPath(int account) {
         int purpose = LitecoinWallet.PURPOSE | HARDENED;
-        int coinCode = LitecoinWallet.COIN.getCode() | HARDENED;
+        int coinCode = LTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }
 
     private int[] getDerivedAddressPath(int account, int change, int index) {
         int purpose = LitecoinWallet.PURPOSE | HARDENED;
-        int coinCode = LitecoinWallet.COIN.getCode() | HARDENED;
+        int coinCode = LTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};
     }

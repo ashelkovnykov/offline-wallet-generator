@@ -12,6 +12,7 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.XRPWallet;
 
+import static com.ashelkov.owg.bip.Coin.XRP;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
@@ -21,13 +22,11 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
     private static final byte PAYLOAD_PREFIX = (byte)0x00;
 
     private final Bip32ECKeyPair masterKeyPair;
-    private final byte[] seed;
     private final boolean legacy;
 
     public XRPWalletGenerator(byte[] seed, boolean legacy, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
-        this.seed = seed;
         this.legacy = legacy;
     }
 
@@ -119,14 +118,14 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
 
     private int[] getAddressPath(int account) {
         int purpose = XRPWallet.PURPOSE | HARDENED;
-        int coinCode = XRPWallet.COIN.getCode() | HARDENED;
+        int coinCode = XRP.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, 0, 0};
     }
 
     private int[] getAddressPathED25519(int account) {
         int purpose = XRPWallet.PURPOSE | HARDENED;
-        int coinCode = XRPWallet.COIN.getCode() | HARDENED;
+        int coinCode = XRP.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }

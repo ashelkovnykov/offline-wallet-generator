@@ -6,8 +6,8 @@ public abstract class AccountIndexWalletGenerator extends WalletGenerator {
 
     private static final int PATH_LENGTH = 2;
 
-    public AccountIndexWalletGenerator(boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+    public AccountIndexWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
+        super(seed, genPrivKey, genPubKey);
     }
 
     @Override

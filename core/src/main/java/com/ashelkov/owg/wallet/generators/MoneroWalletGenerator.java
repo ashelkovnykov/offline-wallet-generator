@@ -14,6 +14,7 @@ import com.ashelkov.owg.wallet.util.DigestUtils;
 import com.ashelkov.owg.wallet.util.Ed25519Utils;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.XMR;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.KECCAK_256;
@@ -25,7 +26,7 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
     // the BIP44 path with a hardened 0 account, though)
     public static final int[] ADDRESS_PATH =  {
             MoneroWallet.PURPOSE | HARDENED,
-            MoneroWallet.COIN.getCode() | HARDENED,
+            XMR.getCode() | HARDENED,
             HARDENED
     };
     // "SubAddr" as byte array
@@ -57,7 +58,7 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
             boolean genSpendKey,
             boolean genPrivKey)
     {
-        super(genPrivKey, false);
+        super(seed, genPrivKey, false);
         this.seed = seed;
         this.genViewKey = genViewKey;
         this.genSpendKey = genSpendKey;
@@ -189,7 +190,7 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
 
     private int[] getSubaddressPath(int account, int index) {
         int purpose = MoneroWallet.PURPOSE | HARDENED;
-        int coinCode = MoneroWallet.COIN.getCode() | HARDENED;
+        int coinCode = XMR.getCode() | HARDENED;
 
         // Since this path is for printing and not key generation, account and index definitely should not be hardened
         return new int[] {purpose, coinCode, account, index};

@@ -10,6 +10,7 @@ import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.EthereumWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.ETH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
 public class EthereumWalletGenerator extends IndexWalletGenerator {
@@ -17,7 +18,7 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public EthereumWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -67,7 +68,7 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
 
     private int[] getAddressPath(int index) {
         int purpose = EthereumWallet.PURPOSE | HARDENED;
-        int coinCode = EthereumWallet.COIN.getCode() | HARDENED;
+        int coinCode = ETH.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 
         return new int[] {purpose, coinCode, account, 0, index};

@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Looking for Volunteer
 - Private/public keys for ALGO
-- Private/public keys for AVAX
+- Replace `String` private/public keys with dedicated class
 - Alternate output types (YAML, JSON)
 
 ## [Unreleased]

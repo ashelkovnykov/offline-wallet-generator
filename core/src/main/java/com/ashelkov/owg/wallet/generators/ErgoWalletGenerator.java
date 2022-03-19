@@ -10,6 +10,7 @@ import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.wallet.ErgoWallet;
 import com.ashelkov.owg.wallet.util.EncodingUtils;
 
+import static com.ashelkov.owg.bip.Coin.ERG;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
@@ -28,7 +29,7 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
     private final Bip32ECKeyPair masterKeyPair;
 
     public ErgoWalletGenerator(byte[] seed, boolean genPrivKey, boolean genPubKey) {
-        super(genPrivKey, genPubKey);
+        super(seed, genPrivKey, genPubKey);
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
@@ -96,7 +97,7 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
 
     private int[] getAddressPath(int index) {
         int purpose = ErgoWallet.PURPOSE | HARDENED;
-        int coinCode = ErgoWallet.COIN.getCode() | HARDENED;
+        int coinCode = ERG.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 
         return new int[] {purpose, coinCode, account, 0, index};
