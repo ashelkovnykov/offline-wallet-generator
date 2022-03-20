@@ -23,6 +23,7 @@ run {
     systemProperties['java.util.logging.config.file'] = 'src/main/resources/logging.properties'
 }
 
+// Below settings necessary to produce fat jar which can act as standalone release
 jar {
     manifest {
         attributes(
