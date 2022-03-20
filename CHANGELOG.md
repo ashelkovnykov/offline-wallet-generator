@@ -6,9 +6,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Additional safety checks in API (e.g. valid paths, etc.)
-- Run via Docker
-- Documentation
+- Update internal documentation
+- Update external documentation
+- v1.0.0 release
 
 ### Long-term
 - Unit tests
@@ -17,7 +17,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Looking for Volunteer
 - Private/public keys for ALGO
-- Replace `String` private/public keys with dedicated class
 - Alternate output types (YAML, JSON)
 
 ## [Unreleased]
