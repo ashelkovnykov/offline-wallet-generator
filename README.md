@@ -157,6 +157,13 @@ $HOME/Library/Wallets/
 %APPDATA%\
 ```
 
+## Docker
+
+```shell
+docker build -t owg:latest .
+docker run --rm -v [/path/to/output/]:/app/output/:rw owg:latest
+```
+
 ## Acknowledgements
 
 TODO
