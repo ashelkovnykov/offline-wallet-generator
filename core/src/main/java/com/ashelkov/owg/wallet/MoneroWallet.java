@@ -4,7 +4,9 @@ import java.util.List;
 
 import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.address.BIP44Address;
+import com.ashelkov.owg.wallet.util.BIP44Utils;
 
+import static com.ashelkov.owg.bip.Coin.XMR;
 import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
 public class MoneroWallet extends SingleCoinWallet {
@@ -21,7 +23,7 @@ public class MoneroWallet extends SingleCoinWallet {
             String privateViewKey,
             boolean hasSubaddresses)
     {
-        super(derivedAddresses, Coin.XMR);
+        super(derivedAddresses, XMR);
         this.privateSpendKey = privateSpendKey;
         this.privateViewKey = privateViewKey;
         this.hasSubaddresses = hasSubaddresses;
@@ -43,19 +45,26 @@ public class MoneroWallet extends SingleCoinWallet {
         result.append(coin);
         result.append(':');
 
+        // append path (all Monero wallets use the exact same path)
+        result.append("\n(m/");
+        result.append(PURPOSE);
+        result.append("'/");
+        result.append(XMR);
+        result.append("'/0')");
+
         // append private spend/view keys, if present
         if (privateSpendKey != null) {
-            result.append("\nPRIV SPEND =\t");
+            result.append("\n\tPRIV SPEND\t");
             result.append(privateSpendKey);
         }
         if (privateViewKey != null) {
-            result.append("\nPRIV VIEW =\t");
+            result.append("\n\tPRIV VIEW\t");
             result.append(privateViewKey);
         }
 
         // append addresses
         for (BIP44Address address : addresses) {
-            result.append("\n\n");
+            result.append("\n");
             result.append(address.toString());
         }
 
