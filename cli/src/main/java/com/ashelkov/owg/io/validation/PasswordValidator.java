@@ -8,6 +8,9 @@ import com.beust.jcommander.ParameterException;
 
 import com.ashelkov.owg.io.exception.NullConsoleException;
 
+/**
+ * JCommander validator for password (user must enter identical password twice).
+ */
 public class PasswordValidator implements IParameterValidator {
 
     @Override

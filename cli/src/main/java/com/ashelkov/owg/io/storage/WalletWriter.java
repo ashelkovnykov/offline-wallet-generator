@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 import com.ashelkov.owg.io.util.FileUtils;
 import com.ashelkov.owg.wallet.Wallet;
 
+/**
+ * Derived [[Writer]] to save wallet to OWG custom '.wal' file format.
+ */
 public final class WalletWriter extends Writer {
 
     private static final Logger logger = LoggerFactory.getLogger(WalletWriter.class);
@@ -25,6 +28,12 @@ public final class WalletWriter extends Writer {
         this.overwrite = overwrite;
     }
 
+    /**
+     * Save the given wallet to disk in '.wal' format.
+     *
+     * @param mnemonic Mnemonic phrase used to produce wallet
+     * @param wallet Wallet to output
+     */
     public void saveWallet(String mnemonic, Wallet wallet) {
 
         logger.debug(String.format("WalletWriter.save() called with base path '%s'", basePath));

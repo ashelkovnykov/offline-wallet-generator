@@ -3,14 +3,19 @@ package com.ashelkov.owg.wallet;
 import java.util.List;
 
 import com.ashelkov.owg.address.BIP44Address;
-import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.bip.Coin;
 
+/**
+ * Representation of a cryptocurrency wallet for just one coin which uses an extended public key (a
+ * [BIP-32}(https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Extended_keys) feature). Extended public keys
+ * allow the derivation of all child public keys, meaning that they allow third-parties to verify the balances of all
+ * derived addresses.
+ */
 public abstract class XPubWallet extends SingleCoinWallet {
 
-    protected final BIP84Address xpub;
+    protected final BIP44Address xpub;
 
-    protected XPubWallet(BIP84Address xpub, List<BIP44Address> addresses, Coin coin) {
+    protected XPubWallet(BIP44Address xpub, List<BIP44Address> addresses, Coin coin) {
         super(addresses, coin);
         this.xpub = xpub;
     }

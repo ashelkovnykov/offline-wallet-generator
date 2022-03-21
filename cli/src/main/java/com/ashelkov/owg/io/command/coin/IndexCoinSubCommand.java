@@ -4,8 +4,11 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.converters.IntegerConverter;
 
 import com.ashelkov.owg.io.validation.PositiveIntegerValidator;
-import com.ashelkov.owg.wallet.generators.WalletGenerator;
+import com.ashelkov.owg.wallet.generators.SingleCoinWalletGenerator;
 
+/**
+ * Specialization of [[CoinSubCommand]] for coins which make use of the BIP-44 'index' field.
+ */
 public abstract class IndexCoinSubCommand extends CoinSubCommand {
 
     //
@@ -24,7 +27,7 @@ public abstract class IndexCoinSubCommand extends CoinSubCommand {
             description = "BIP 44 index field for address",
             converter = IntegerConverter.class,
             validateValueWith = PositiveIntegerValidator.class)
-    protected int index = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int index = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     //
     // Getters

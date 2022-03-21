@@ -14,6 +14,9 @@ import static com.ashelkov.owg.bip.Coin.ERG;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[ErgoWallet]] objects.
+ */
 public class ErgoWalletGenerator extends IndexWalletGenerator {
 
     // First 4 bits:
@@ -33,6 +36,11 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
+    /**
+     * Generate the default [[ErgoWallet]] ('index' field has default value).
+     *
+     * @return New Ergo wallet containing only the address m/44'/429'/0'/0/0
+     */
     @Override
     public ErgoWallet generateDefaultWallet() {
 
@@ -42,6 +50,14 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
         return new ErgoWallet(wrapper);
     }
 
+    /**
+     * Generate a [[ErgoWallet]] for a particular BIP-44 'index'. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Ergo wallet
+     */
     @Override
     public ErgoWallet generateWallet(int index, int numAddresses) {
 
@@ -54,6 +70,12 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
         return new ErgoWallet(addresses);
     }
 
+    /**
+     * Generate the Ergo address for a particular BIP-44 'index'.
+     *
+     * @param index Index value
+     * @return Ergo address
+     */
     private BIP44Address generateAddress(int index) {
 
         int[] addressPath = getAddressPath(index);
@@ -95,8 +117,14 @@ public class ErgoWalletGenerator extends IndexWalletGenerator {
         return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the full BIP-44 path for a given Ergo index value.
+     *
+     * @param index Index value
+     * @return BIP-44 path for the given index
+     */
     private int[] getAddressPath(int index) {
-        int purpose = ErgoWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = ERG.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 

@@ -6,13 +6,13 @@ import java.util.Arrays;
 import org.web3j.crypto.Hash;
 
 /**
- *
+ * Utilities used to encode addresses in text format.
  */
 public class EncodingUtils {
 
     private static final char[] BITCOIN_ALPHABET =
             "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz".toCharArray();
-    private static final char[] RIPPLE_ALPHABET =
+    private static final char[] XRP_ALPHABET =
             "rpshnaf39wBUDNEGHJKLM4PQRST7VWXYZ2bcdeCg65jkm8oFqi1tuvAxyz".toCharArray();
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
     private static final int CHECKSUM_BYTES = 4;
@@ -26,18 +26,17 @@ public class EncodingUtils {
     }
 
     /**
-     *
-     * NOTE: This code is mostly copied from...
-     * https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
+     * NOTE: This code is mostly copied from:
+     *       https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
      *
      * ================================================================================================================
      *
-     * Encodes the given bytes as a base58 string (no checksum is appended).
+     * Encodes the given bytes as a base58 string (checksum optionally appended).
      *
-     * @param rawInput the bytes to encode
-     * @param alphabet
-     * @param checksum
-     * @return the base58-encoded string
+     * @param rawInput Bytes to encode
+     * @param alphabet Ordered alphabet used for encoding
+     * @param checksum Append checksum to bytes before encoding if true
+     * @return The input bytes as a base58-encoded [[String]]
      */
     private static String doEncodeBase58(byte[] rawInput, char[] alphabet, boolean checksum) {
         if (rawInput.length == 0) {
@@ -83,16 +82,21 @@ public class EncodingUtils {
     }
 
     /**
-     * Divides a number, represented as an array of bytes each containing a single digit
-     * in the specified base, by the given divisor. The given number is modified in-place
-     * to contain the quotient, and the return value is the remainder.
+     * NOTE: This code is mostly copied from:
+     *       https://github.com/bitcoinj/bitcoinj/blob/master/core/src/main/java/org/bitcoinj/core/Base58.java
      *
-     * @param number the number to divide
-     * @param firstDigit the index within the array of the first non-zero digit
-     *        (this is used for optimization by skipping the leading zeros)
-     * @param base the base in which the number's digits are represented (up to 256)
-     * @param divisor the number to divide by (up to 256)
-     * @return the remainder of the division operation
+     * ================================================================================================================
+     *
+     * Divides a number, represented as an array of bytes each containing a single digit in the specified base, by the
+     * given divisor. The given number is modified in-place to contain the quotient, and the return value is the
+     * remainder.
+     *
+     * @param number The number to divide
+     * @param firstDigit The index within the array of the first non-zero digit (this is used for optimization by
+     *                   skipping the leading zeros)
+     * @param base The base in which the number's digits are represented (up to 256)
+     * @param divisor The number to divide by (up to 256)
+     * @return The remainder of the division operation
      */
     private static byte divmod(byte[] number, int firstDigit, int base, int divisor) {
         // this is just long division which accounts for the base of the input digits
@@ -106,40 +110,55 @@ public class EncodingUtils {
         return (byte) remainder;
     }
 
+    /**
+     * Encodes the given bytes as a base58 string using the Bitcoin alphabet (checksum optionally appended).
+     *
+     * @param input Bytes to encode
+     * @param checksum Append checksum to bytes before encoding if true
+     * @return The input bytes as a base58-encoded [[String]]
+     */
     public static String base58Bitcoin(byte[] input, boolean checksum) {
         return doEncodeBase58(input, BITCOIN_ALPHABET, checksum);
     }
 
     /**
-     * Encodes the given bytes as a base58 string (no checksum is appended) for Bitcoin.
+     * Encodes the given bytes as a base58 string using the Bitcoin alphabet (no checksum is appended).
      *
-     * @param input the bytes to encode
-     * @return the base58-encoded string
+     * @param input Bytes to encode
+     * @return The input bytes as a base58-encoded [[String]]
      */
     public static String base58Bitcoin(byte[] input) {
-        return doEncodeBase58(input, BITCOIN_ALPHABET);
-    }
-
-    public static String base58Ripple(byte[] input, boolean checksum) {
-        return doEncodeBase58(input, RIPPLE_ALPHABET, checksum);
+        return base58Bitcoin(input, false);
     }
 
     /**
-     * Encodes the given bytes as a base58 string (no checksum is appended) for Ripple.
+     * Encodes the given bytes as a base58 string using the XRP alphabet (checksum optionally appended).
      *
-     * @param input the bytes to encode
-     * @return the base58-encoded string
+     * @param input Bytes to encode
+     * @param checksum Append checksum to bytes before encoding if true
+     * @return The input bytes as a base58-encoded [[String]]
      */
-    public static String base58Ripple(byte[] input) {
-        return doEncodeBase58(input, RIPPLE_ALPHABET);
+    public static String base58XRP(byte[] input, boolean checksum) {
+        return doEncodeBase58(input, XRP_ALPHABET, checksum);
     }
 
     /**
+     * Encodes the given bytes as a base58 string using the XRP alphabet (no checksum is appended).
      *
-     * https://monerodocs.org/cryptography/base58/
+     * @param input Bytes to encode
+     * @return The input bytes as a base58-encoded [[String]]
+     */
+    public static String base58XRP(byte[] input) {
+        return base58XRP(input, false);
+    }
+
+    /**
+     * Encodes the given bytes as a base58 string using the Monero alphabet (no checksum is appended).
      *
-     * @param input
-     * @return
+     * Note: Full documentation here: https://monerodocs.org/cryptography/base58/
+     *
+     * @param input Bytes to encode
+     * @return The input bytes as a base58-encoded [[String]]
      */
     public static String base58Monero(byte[] input) {
 
@@ -169,6 +188,12 @@ public class EncodingUtils {
         return result.toString();
     }
 
+    /**
+     * Append a checksum to then end of a byte array (the right-most SHA256 bytes are used for the checksum).
+     *
+     * @param input Bytes to which to append checksum
+     * @return The input bytes with a SHA256 checksum appended
+     */
     public static byte[] appendChecksum(byte[] input) {
         byte[] result = new byte[input.length + CHECKSUM_BYTES];
         byte[] checksum = Hash.sha256(input);
@@ -179,9 +204,14 @@ public class EncodingUtils {
     }
 
     /**
+     * Convert an input array of regular bytes to 5-bit bytes for use with a base-32 encoding algorithm.
      *
-     * @param input
-     * @return
+     * Clearly, this algorithm works best when the input length is a multiple of 5, as a byte is 8 bits in length and
+     * the lowest common multiple of 5 and 8 is 40. This algorithm is "safe", in that it will pad the input with 0 bytes
+     * if the length is not a multiple of 5.
+     *
+     * @param input Bytes to encode
+     * @return The input byte array converted to a longer array of 5-bit bytes
      */
     public static byte[] to5BitBytesSafe(byte[] input) {
 
@@ -213,13 +243,15 @@ public class EncodingUtils {
     }
 
     /**
-     * Code taken from the top answer to this question:
-     * https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
+     * NOTE: Code taken from the top answer to this question:
+     *       https://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java
      *
      * ================================================================================================================
      *
-     * @param bytes
-     * @return
+     * Convert bytes to a [[String]] of their hexadecimal values.
+     *
+     * @param bytes Bytes to encode
+     * @return String of hexadecimal characters
      */
     public static String bytesToHex(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];
@@ -238,6 +270,13 @@ public class EncodingUtils {
         return new String(hexChars, StandardCharsets.UTF_8);
     }
 
+    /**
+     * Convert an integer to a 4-byte array (little or big endian).
+     *
+     * @param i Input integer
+     * @param isLittleEndian If true, interpret input as little-endian, otherwise interpret as big-endian
+     * @return Input integer as array of 4 bytes
+     */
     public static byte[] intToFourBytes(int i, boolean isLittleEndian) {
         byte[] result = new byte[4];
 

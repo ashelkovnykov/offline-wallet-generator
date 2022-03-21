@@ -14,7 +14,6 @@ import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.command.SoloCommand;
 import com.ashelkov.owg.io.command.MultiCommand;
 import com.ashelkov.owg.io.command.coin.*;
-import com.ashelkov.owg.io.conversion.OutputFormatConverter;
 import com.ashelkov.owg.io.storage.OutputFormat;
 import com.ashelkov.owg.io.storage.Writer;
 import com.ashelkov.owg.io.storage.WriterFactory;
@@ -22,7 +21,7 @@ import com.ashelkov.owg.io.util.CommandUtils;
 import com.ashelkov.owg.io.validation.*;
 
 /**
- *
+ * JCommander parameter specification for CLI.
  */
 final public class Params {
 
@@ -92,8 +91,7 @@ final public class Params {
 
     @Parameter(
             names = {OPT_OUTPUT_FORMAT_S, OPT_OUTPUT_FORMAT_L},
-            description = "Generated wallet output format",
-            converter = OutputFormatConverter.class)
+            description = "Generated wallet output format")
     private OutputFormat outputFormat = DEFAULT_OUTPUT_TYPE;
 
     @Parameter(

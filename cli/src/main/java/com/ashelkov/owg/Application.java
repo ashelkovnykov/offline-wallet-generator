@@ -21,14 +21,24 @@ import com.ashelkov.owg.wallet.MultiCoinWallet;
 import com.ashelkov.owg.wallet.Wallet;
 import com.ashelkov.owg.wallet.generators.*;
 
+/**
+ * Main class for OWG CLI.
+ */
 public final class Application {
 
     private static final Logger logger = LoggerFactory.getLogger(Application.class);
     private static final Params params = Params.getInstance();
 
     private Application() {}
-    
-    private static WalletGenerator getWalletGenerator(Coin coin, byte[] seed) {
+
+    /**
+     * Create factory for selected coin using given random seed.
+     *
+     * @param coin Coin for which to create factory
+     * @param seed Random seed
+     * @return Factory ready to generate wallet
+     */
+    private static SingleCoinWalletGenerator getWalletGenerator(Coin coin, byte[] seed) {
         return switch (coin) {
             case BTC ->
                 new BitcoinWalletGenerator(seed, params.isGenPrivKey(), params.isGenPubKey());
@@ -77,14 +87,20 @@ public final class Application {
         };
     }
 
+    /**
+     * Generate a wallet containing the default address for every coin supported by the OWG.
+     *
+     * @param seed Random seed
+     * @return New wallet
+     */
     private static MultiCoinWallet generateMultiWallet(byte[] seed) {
 
         List<SingleCoinWallet> subWallets = new ArrayList<>(Coin.values().length);
 
         for (Coin coin : Coin.values()) {
             try {
-                WalletGenerator walletGenerator = getWalletGenerator(coin, seed);
-                subWallets.add(walletGenerator.generateDefaultWallet());
+                SingleCoinWalletGenerator singleCoinWalletGenerator = getWalletGenerator(coin, seed);
+                subWallets.add(singleCoinWalletGenerator.generateDefaultWallet());
             } catch (Exception e) {
                 System.exit(1);
             }
@@ -93,6 +109,11 @@ public final class Application {
         return new MultiCoinWallet(subWallets);
     }
 
+    /**
+     * Application entry point.
+     *
+     * @param args CLI arguments (commands and options)
+     */
     public static void main(String[] args) {
 
         //
@@ -151,8 +172,8 @@ public final class Application {
         switch (params.getCommand()) {
             case SoloCommand.NAME -> {
                 try {
-                    WalletGenerator walletGenerator = getWalletGenerator(params.getCoin(), seedFromMnemonic);
-                    wallet = walletGenerator.generatePathWallet(params.getBipPath(), params.getNumAddresses());
+                    SingleCoinWalletGenerator singleCoinWalletGenerator = getWalletGenerator(params.getCoin(), seedFromMnemonic);
+                    wallet = singleCoinWalletGenerator.generatePathWallet(params.getBipPath(), params.getNumAddresses());
                 } catch (Exception e) {
                     System.exit(1);
                 }

@@ -5,6 +5,9 @@ import java.util.List;
 import com.ashelkov.owg.address.BIP44Address;
 import com.ashelkov.owg.bip.Coin;
 
+/**
+ * Representation of a cryptocurrency wallet for just one coin.
+ */
 public abstract class SingleCoinWallet extends Wallet {
 
     protected final List<BIP44Address> addresses;
@@ -38,11 +41,21 @@ public abstract class SingleCoinWallet extends Wallet {
         return result.toString();
     }
 
+    /**
+     * Get a unique [[String]] identifier for the current wallet type: the coin ticker name.
+     *
+     * @return Coin name
+     */
     @Override
     public String getIdentifier() {
         return coin.toString();
     }
 
+    /**
+     * Get the coin type of this wallet.
+     *
+     * @return Wallet coin type
+     */
     public Coin getCoin() {
         return coin;
     }

@@ -10,6 +10,9 @@ import net.i2p.crypto.eddsa.spec.EdDSAParameterSpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Utilities for deriving ed25519 curve key pairs.
+ */
 public class Ed25519Utils {
 
     private static final Logger logger = LoggerFactory.getLogger(Ed25519Utils.class);
@@ -37,13 +40,13 @@ public class Ed25519Utils {
     }
 
     /**
-     * NOTE: Code copied from...
-     * https://github.com/stellar/java-stellar-sdk/blob/ce7de4f074bc16416b537e583bf06227315b879c/src/main/java/org/stellar/sdk/SLIP10.java#L30
+     * NOTE: This code copied from
+     *       https://github.com/stellar/java-stellar-sdk/blob/ce7de4f074bc16416b537e583bf06227315b879c/src/main/java/org/stellar/sdk/SLIP10.java#L30
      *
-     * ================================================================================================================
+     * =================================================================================================================
      *
-     * Derives only the private key for ED25519 in the manor defined in
-     * <a href="https://github.com/satoshilabs/slips/blob/master/slip-0010.md">SLIP-0010</a>.
+     * Derives only the private key for ED25519 in the manner defined by
+     * [SLIP-0010](https://github.com/satoshilabs/slips/blob/master/slip-0010.md).
      *
      * @param seed    Seed, the BIP0039 output.
      * @param indexes an array of indexes that define the path. E.g. for m/1'/2'/3', pass 1, 2, 3.
@@ -94,11 +97,12 @@ public class Ed25519Utils {
     }
 
     /**
-     * https://github.com/str4d/ed25519-java/blob/master/src/net/i2p/crypto/eddsa/math/ed25519/Ed25519ScalarOps.java
+     * NOTE: This code copied form
+     *       https://github.com/str4d/ed25519-java/blob/master/src/net/i2p/crypto/eddsa/math/ed25519/Ed25519ScalarOps.java
      *
      * ==========================================================================================================
      *
-     * Reduction modulo the group order $q$.
+     * 64-byte integer reduction modulo the group order $q$.
      * <p>
      * Input:
      *   $s[0]+256*s[1]+\dots+256^{63}*s[63] = s$
@@ -106,6 +110,9 @@ public class Ed25519Utils {
      * Output:
      *   $s[0]+256*s[1]+\dots+256^{31}*s[31] = s \bmod q$
      *   where $q = 2^{252} + 27742317777372353535851937790883648493$.
+     *
+     * @param s 64-byte integer
+     * @return Input reduced module q
      */
     public static byte[] reduce(byte[] s) {
         // s0,..., s22 have 21 bits, s23 has 29 bits
@@ -395,10 +402,22 @@ public class Ed25519Utils {
     }
 
     /**
-     * https://github.com/monero-project/monero/blob/dcba757dd283a3396120f0df90fe746e3ec02292/src/crypto/crypto-ops.c
+     * NOTE: This code copied from
+     *       https://github.com/monero-project/monero/blob/dcba757dd283a3396120f0df90fe746e3ec02292/src/crypto/crypto-ops.c
      *
-     * @param s
-     * @return
+     * ==========================================================================================================
+     *
+     * 32-byte integer reduction modulo the group order $q$.
+     * <p>
+     * Input:
+     *   $s[0]+256*s[1]+\dots+256^{63}*s[63] = s$
+     * <p>
+     * Output:
+     *   $s[0]+256*s[1]+\dots+256^{31}*s[31] = s \bmod q$
+     *   where $q = 2^{252} + 27742317777372353535851937790883648493$.
+     *
+     * @param s 32-byte integer
+     * @return Input reduced module q
      */
     public static byte[] reduce32(byte[] s) {
         long s0 = 0x1FFFFF & load_3(s, 0);

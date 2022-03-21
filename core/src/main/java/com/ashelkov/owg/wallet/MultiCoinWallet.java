@@ -2,6 +2,9 @@ package com.ashelkov.owg.wallet;
 
 import java.util.List;
 
+/**
+ * Representation of a cryptocurrency wallet for multiple coins.
+ */
 public class MultiCoinWallet extends Wallet {
 
     private static final String ID = "multi";

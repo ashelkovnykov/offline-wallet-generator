@@ -8,13 +8,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.web3j.crypto.LinuxSecureRandom;
 
+/**
+ * Generic utilities used by CLI.
+ */
 public final class Utils {
 
     private static final Logger logger = LoggerFactory.getLogger(Utils.class);
     private static SecureRandom random;
 
-    private Utils() {}
-
+    /**
+     * Setup the source of randomness used for generating entropy.
+     */
     private static void initSecureRandom() {
 
         // Preferred method for secure RNG on UNIX systems
@@ -33,6 +37,11 @@ public final class Utils {
         random = new SecureRandom();
     }
 
+    /**
+     * Initialize and pass the source of entropy which will be used by the CLI.
+     *
+     * @return [[SecureRandom]]
+     */
     public static SecureRandom getSecureRandom() {
 
         if (random == null) {
@@ -41,4 +50,6 @@ public final class Utils {
 
         return random;
     }
+
+    private Utils() {}
 }

@@ -7,7 +7,7 @@ import com.beust.jcommander.converters.IntegerConverter;
 import com.ashelkov.owg.io.validation.*;
 
 /**
- *
+ * JCommander command for producing a wallet for a single cryptocurrency.
  */
 @Parameters(
         separators = "=",

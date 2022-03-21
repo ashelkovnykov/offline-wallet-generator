@@ -3,6 +3,9 @@ package com.ashelkov.owg.io.validation;
 import com.beust.jcommander.IValueValidator;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * JCommander validator for bits of entropy to use when generating mnemonic seed phrase.
+ */
 public class EntropyValidator implements IValueValidator<Integer> {
 
     private static final int MAX_ENTROPY = 256;

@@ -17,6 +17,9 @@ import static com.ashelkov.owg.bip.Coin.BTC;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[BitcoinWallet]] objects.
+ */
 public class BitcoinWalletGenerator extends ACIWalletGenerator {
 
     private static final String BECH32_HRP = "bc";
@@ -26,6 +29,13 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
     // https://github.com/bitcoin/bips/blob/master/bip-0032.mediawiki#Serialization_format
     private static final int XPUB_CORE_LENGTH = 78;
 
+    /**
+     * Generate a Bitcoin-style private key in text format.
+     *
+     * @param rawKeyBytes Raw bytes representing private key as integer
+     * @param blockchainIdPrefix Unique ID of blockchain for which private key is being generated
+     * @return Private key as String
+     */
     public static String generatePrivateKey(byte[] rawKeyBytes, byte blockchainIdPrefix) {
         byte[] privKeyBase = new byte[34];
         byte[] privKeyBytes = new byte[38];
@@ -47,6 +57,11 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
+    /**
+     * Generate the default [[BitcoinWallet]] ('account', 'change', 'index', etc. fields have default values).
+     *
+     * @return New Bitcoin wallet containing only the address m/84'/0'/0'/0/0
+     */
     @Override
     public BitcoinWallet generateDefaultWallet() {
 
@@ -57,6 +72,16 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
         return new BitcoinWallet(masterPubKey, wrapper);
     }
 
+    /**
+     * Generate a [[BitcoinWallet]] for a particular BIP-44 path. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Bitcoin wallet
+     */
     @Override
     public BitcoinWallet generateWallet(int account, int change, int index, int numAddresses) {
 
@@ -70,6 +95,14 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
         return new BitcoinWallet(masterPubKey, derivedAddresses);
     }
 
+    /**
+     * Generate the Bitcoin address for a particular BIP-44 path.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return Bitcoin address
+     */
     private BIP84Address generateDerivedAddress(int account, int change, int index) {
 
         int[] addressPath = getDerivedAddressPath(account, change, index);
@@ -98,6 +131,12 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
         return new BIP84Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the extended public address for a particular Bitcoin account.
+     *
+     * @param account Account value
+     * @return Bitcoin extended public address
+     */
     private BIP84Address generateExtendedKey(int account) {
 
         int[] addressPath = getAccountAddressPath(account);
@@ -122,15 +161,29 @@ public class BitcoinWalletGenerator extends ACIWalletGenerator {
         return new BIP84Address(xpubKeySerialized, addressPath);
     }
 
+    /**
+     * Generate the full BIP-44 path of a given Bitcoin account.
+     *
+     * @param account Account value
+     * @return BIP-44 path for the given account
+     */
     private int[] getAccountAddressPath(int account) {
-        int purpose = BitcoinWallet.PURPOSE | HARDENED;
+        int purpose = BIP84Address.PURPOSE | HARDENED;
         int coinCode = BTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }
 
+    /**
+     * Generate the full BIP-44 path for given Bitcoin account, change, and index values.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return BIP-44 path for the given values
+     */
     private int[] getDerivedAddressPath(int account, int change, int index) {
-        int purpose = BitcoinWallet.PURPOSE | HARDENED;
+        int purpose = BIP84Address.PURPOSE | HARDENED;
         int coinCode = BTC.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};

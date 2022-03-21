@@ -5,10 +5,10 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.converters.IntegerConverter;
 
 import com.ashelkov.owg.io.validation.PositiveIntegerValidator;
-import com.ashelkov.owg.wallet.generators.WalletGenerator;
+import com.ashelkov.owg.wallet.generators.SingleCoinWalletGenerator;
 
 /**
- *
+ * Sub-command to [[SoloCommand]] for producing a Monero wallet.
  */
 @Parameters(
         separators = "=",
@@ -40,14 +40,14 @@ final public class MoneroCommand extends CoinSubCommand {
             description = "Monero subaddress account",
             converter = IntegerConverter.class,
             validateValueWith = PositiveIntegerValidator.class)
-    protected int account = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int account = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     @Parameter(
             names = {OPT_SUB_ADDRESS_INDEX_S, OPT_SUB_ADDRESS_INDEX_L},
             description = "Monero subaddress index",
             converter = IntegerConverter.class,
             validateValueWith = PositiveIntegerValidator.class)
-    protected int index = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int index = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     @Parameter(
             names = {OPT_SPEND_KEY_S, OPT_SPEND_KEY_L},

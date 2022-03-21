@@ -17,6 +17,9 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Coin.HNS;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[HandshakeWallet]] objects.
+ */
 public class HandshakeWalletGenerator extends ACIWalletGenerator {
 
     private static final String BECH32_HRP = "hs";
@@ -34,6 +37,11 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
+    /**
+     * Generate the default [[HandshakeWallet]] ('account', 'change', 'index', etc. fields have default values).
+     *
+     * @return New Handshake wallet containing only the address m/84'/5353'/0'/0/0
+     */
     @Override
     public HandshakeWallet generateDefaultWallet() {
 
@@ -44,6 +52,16 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         return new HandshakeWallet(masterPubKey, wrapper);
     }
 
+    /**
+     * Generate a [[HandshakeWallet]] for a particular BIP-44 path. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Handshake wallet
+     */
     @Override
     public HandshakeWallet generateWallet(int account, int change, int index, int numAddresses) {
 
@@ -57,6 +75,14 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         return new HandshakeWallet(masterPubKey, derivedAddresses);
     }
 
+    /**
+     * Generate the Handshake address for a particular BIP-44 path.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return Handshake address
+     */
     private BIP84Address generateDerivedAddress(int account, int change, int index) {
 
         int[] addressPath = getDerivedAddressPath(account, change, index);
@@ -86,6 +112,12 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         return new BIP84Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the extended public address for a particular Handshake account.
+     *
+     * @param account Account value
+     * @return Handshake extended public address
+     */
     private BIP84Address generateExtendedKey(int account) {
 
         int[] addressPath = getAccountAddressPath(account);
@@ -110,15 +142,29 @@ public class HandshakeWalletGenerator extends ACIWalletGenerator {
         return new BIP84Address(xpubKeySerialized, addressPath);
     }
 
+    /**
+     * Generate the full BIP-44 path of a given Handshake account.
+     *
+     * @param account Account value
+     * @return BIP-44 path for the given account
+     */
     private int[] getAccountAddressPath(int account) {
-        int purpose = HandshakeWallet.PURPOSE | HARDENED;
+        int purpose = BIP84Address.PURPOSE | HARDENED;
         int coinCode = HNS.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
     }
 
+    /**
+     * Generate the full BIP-44 path for given Handshake account, change, and index values.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return BIP-44 path for the given values
+     */
     private int[] getDerivedAddressPath(int account, int change, int index) {
-        int purpose = HandshakeWallet.PURPOSE | HARDENED;
+        int purpose = BIP84Address.PURPOSE | HARDENED;
         int coinCode = HNS.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};
