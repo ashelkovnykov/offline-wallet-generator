@@ -1,4 +1,4 @@
-package com.ashelkov.owg.io.storage;
+package com.ashelkov.owg.io.output;
 
 import java.nio.file.Path;
 
@@ -21,7 +21,6 @@ public final class WriterFactory {
 
         return switch (format) {
             case CONSOLE -> new ConsoleWriter();
-            case SECURE_CONSOLE -> new SecureConsoleWriter();
             case WALLET -> new WalletWriter(outputPath, overwrite);
         };
     }

@@ -1,4 +1,4 @@
-package com.ashelkov.owg.io.storage;
+package com.ashelkov.owg.io.output;
 
 import java.io.BufferedWriter;
 import java.io.IOException;

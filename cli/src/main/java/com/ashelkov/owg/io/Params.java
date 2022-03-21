@@ -14,9 +14,9 @@ import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.io.command.SoloCommand;
 import com.ashelkov.owg.io.command.MultiCommand;
 import com.ashelkov.owg.io.command.coin.*;
-import com.ashelkov.owg.io.storage.OutputFormat;
-import com.ashelkov.owg.io.storage.Writer;
-import com.ashelkov.owg.io.storage.WriterFactory;
+import com.ashelkov.owg.io.output.OutputFormat;
+import com.ashelkov.owg.io.output.Writer;
+import com.ashelkov.owg.io.output.WriterFactory;
 import com.ashelkov.owg.io.util.CommandUtils;
 import com.ashelkov.owg.io.validation.*;
 

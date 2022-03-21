@@ -1,4 +1,4 @@
-package com.ashelkov.owg.io.storage;
+package com.ashelkov.owg.io.output;
 
 import com.ashelkov.owg.wallet.Wallet;
 
