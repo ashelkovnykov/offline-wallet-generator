@@ -16,6 +16,9 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Coin.AVAX;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[AvalancheWallet]] objects.
+ */
 public class AvalancheWalletGenerator extends IndexWalletGenerator {
 
     // 3 Base chains in Avalanche: Exchange (X), Platform (P), and Contracts (C)
@@ -42,6 +45,11 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
         this.addressChains = addressChains;
     }
 
+    /**
+     * Generate the default [[AvalancheWallet]] ('index' field has default value).
+     *
+     * @return New Avalanche wallet containing only the address m/44'/9000'/0'/0/0
+     */
     @Override
     public AvalancheWallet generateDefaultWallet() {
 
@@ -51,6 +59,14 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
         return new AvalancheWallet(wrapper);
     }
 
+    /**
+     * Generate a [[AvalancheWallet]] for a particular BIP-44 'index'. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Avalanche wallet
+     */
     @Override
     public AvalancheWallet generateWallet(int index, int numAddresses) {
 
@@ -64,12 +80,13 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
     }
 
     /**
+     * Generate the Avalanche addresses for a particular BIP-44 'index'.
      *
-     * https://support.avalabs.org/en/articles/4596397-what-is-an-address
-     * https://support.avalabs.org/en/articles/4587392-what-is-bech32
+     * Avalanche has multiple chains, each of which has its own address for the same BIP-44 path. For more information,
+     * see https://support.avalabs.org/en/articles/4596397-what-is-an-address .
      *
-     * @param index
-     * @return
+     * @param index Index value
+     * @return Ergo address
      */
     private BIP44Address generateAddress(int index) {
 
@@ -112,6 +129,14 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
         return new AvalancheAddress(addresses, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the Bech32 encoded text addresses used for the X and P chains on Avalanche. For more information, see
+     * https://support.avalabs.org/en/articles/4587392-what-is-bech32 .
+     *
+     * @param keyPair The private-public key-pair of the address
+     * @param chain The Avalanche chain of the address
+     * @return Bech32 encoded address
+     */
     private String generateBech32Address(Bip32ECKeyPair keyPair, Chain chain) {
         StringBuilder addressBuilder = new StringBuilder(ADDRESS_LENGTH);
         addressBuilder.append(CHAIN_CODE_MAP.get(chain));
@@ -127,8 +152,14 @@ public class AvalancheWalletGenerator extends IndexWalletGenerator {
         return addressBuilder.toString();
     }
 
+    /**
+     * Generate the full BIP-44 path for a given Avalanche index value.
+     *
+     * @param index Index value
+     * @return BIP-44 path for the given index
+     */
     private int[] getAddressPath(int index) {
-        int purpose = AvalancheWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = AVAX.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 

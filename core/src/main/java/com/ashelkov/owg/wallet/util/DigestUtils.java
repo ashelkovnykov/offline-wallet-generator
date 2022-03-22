@@ -7,7 +7,12 @@ import java.util.Arrays;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 /**
- * Copied from Algorand com.algorand.algosdk.util.Digester and com.algorand.algosdk.util.CryptoProvider
+ * NOTE: This code is copied from Algorand SDK cource classes com.algorand.algosdk.util.Digester and
+ *       com.algorand.algosdk.util.CryptoProvider.
+ *
+ * ====================================================================================================================
+ *
+ * Utilities for performing hashes.
  */
 public class DigestUtils {
 
@@ -16,6 +21,9 @@ public class DigestUtils {
     public static final String KECCAK_256 = "Keccak-256";
     public static final String SHA_512_256 = "SHA-512/256";
 
+    /**
+     * Add a hash function provider if one is not yet present.
+     */
     private static void setupIfNeeded() {
         // Add bouncy castle provider for crypto, if it's not already added
         if (Security.getProvider(BouncyCastleProvider.PROVIDER_NAME) == null) {
@@ -23,6 +31,14 @@ public class DigestUtils {
         }
     }
 
+    /**
+     * Hash given input data using the chosen named algorithm.
+     *
+     * @param alg Algorithm to use
+     * @param data Input data to hash
+     * @return Hash output
+     * @throws NoSuchAlgorithmException if named hash function not found
+     */
     public static byte[] digest(String alg, byte[] data) throws NoSuchAlgorithmException {
 
         setupIfNeeded();
@@ -33,6 +49,14 @@ public class DigestUtils {
         return digest.digest();
     }
 
+    /**
+     * Hash given input data using the chosen named algorithm, but return an empty array if a problem occurs while
+     * hashing.
+     *
+     * @param alg Algorithm to use
+     * @param data Input data to hash
+     * @return Hash output
+     */
     public static byte[] unsafeDigest(String alg, byte[] data) {
 
         byte[] encodedData;

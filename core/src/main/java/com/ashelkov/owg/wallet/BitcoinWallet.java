@@ -3,16 +3,14 @@ package com.ashelkov.owg.wallet;
 import java.util.List;
 
 import com.ashelkov.owg.address.BIP44Address;
-import com.ashelkov.owg.address.BIP84Address;
 import com.ashelkov.owg.bip.Coin;
 
-import static com.ashelkov.owg.bip.Constants.BIP84_PURPOSE;
+/**
+ * Wallet for storing Bitcoin addresses.
+ */
+public final class BitcoinWallet extends XPubWallet {
 
-public class BitcoinWallet extends XPubWallet {
-
-    public static final int PURPOSE = BIP84_PURPOSE;
-
-    public BitcoinWallet(BIP84Address xpub, List<BIP44Address> addresses) {
+    public BitcoinWallet(BIP44Address xpub, List<BIP44Address> addresses) {
         super(xpub, addresses, Coin.BTC);
     }
 }

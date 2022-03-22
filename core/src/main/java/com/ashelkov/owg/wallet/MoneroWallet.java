@@ -2,16 +2,14 @@ package com.ashelkov.owg.wallet;
 
 import java.util.List;
 
-import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.address.BIP44Address;
-import com.ashelkov.owg.wallet.util.BIP44Utils;
 
 import static com.ashelkov.owg.bip.Coin.XMR;
-import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
 
+/**
+ * Wallet for storing Monero addresses.
+ */
 public class MoneroWallet extends SingleCoinWallet {
-
-    public static final int PURPOSE = BIP44_PURPOSE;
 
     private final String privateSpendKey;
     private final String privateViewKey;
@@ -47,7 +45,7 @@ public class MoneroWallet extends SingleCoinWallet {
 
         // append path (all Monero wallets use the exact same path)
         result.append("\n(m/");
-        result.append(PURPOSE);
+        result.append(BIP44Address.PURPOSE);
         result.append("'/");
         result.append(XMR);
         result.append("'/0')");

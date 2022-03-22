@@ -13,6 +13,9 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Coin.ETH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[EthereumWallet]] objects.
+ */
 public class EthereumWalletGenerator extends IndexWalletGenerator {
 
     private final Bip32ECKeyPair masterKeyPair;
@@ -22,6 +25,11 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
+    /**
+     * Generate the default [[EthereumWallet]] ('index' field has default value).
+     *
+     * @return New Ethereum wallet containing only the address m/44'/44'/0'/0/0
+     */
     @Override
     public EthereumWallet generateDefaultWallet() {
 
@@ -31,6 +39,14 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
         return new EthereumWallet(wrapper);
     }
 
+    /**
+     * Generate a [[EthereumWallet]] for a particular BIP-44 'index'. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Ethereum wallet
+     */
     @Override
     public EthereumWallet generateWallet(int index, int numAddresses) {
 
@@ -43,6 +59,12 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
         return new EthereumWallet(addresses);
     }
 
+    /**
+     * Generate the Ethereum address for a particular BIP-44 'index'.
+     *
+     * @param index Index value
+     * @return Ethereum address
+     */
     private BIP44Address generateAddress(int index) {
 
         int[] addressPath = getAddressPath(index);
@@ -66,8 +88,14 @@ public class EthereumWalletGenerator extends IndexWalletGenerator {
         return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the full BIP-44 path for a given Ethereum index value.
+     *
+     * @param index Index value
+     * @return BIP-44 path for the given index
+     */
     private int[] getAddressPath(int index) {
-        int purpose = EthereumWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = ETH.getCode() | HARDENED;
         int account = HARDENED; // 0 | HARDENED
 

@@ -9,7 +9,7 @@ import com.beust.jcommander.Parameters;
 import com.ashelkov.owg.coin.avax.Chain;
 
 /**
- *
+ * Sub-command to [[SoloCommand]] for producing an Avalanche wallet.
  */
 @Parameters(
         separators = "=",

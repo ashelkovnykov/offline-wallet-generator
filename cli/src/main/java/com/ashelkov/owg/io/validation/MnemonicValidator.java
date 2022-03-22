@@ -4,6 +4,9 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.ParameterException;
 import org.web3j.crypto.MnemonicUtils;
 
+/**
+ * JCommander validator for mnemonic seed phrase.
+ */
 public class MnemonicValidator implements IParameterValidator {
 
     @Override

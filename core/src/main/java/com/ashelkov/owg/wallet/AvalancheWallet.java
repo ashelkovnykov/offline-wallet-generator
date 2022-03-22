@@ -2,14 +2,13 @@ package com.ashelkov.owg.wallet;
 
 import java.util.List;
 
-import com.ashelkov.owg.bip.Coin;
 import com.ashelkov.owg.address.BIP44Address;
+import com.ashelkov.owg.bip.Coin;
 
-import static com.ashelkov.owg.bip.Constants.BIP44_PURPOSE;
-
+/**
+ * Wallet for storing Avalanche addresses.
+ */
 public class AvalancheWallet extends SingleCoinWallet {
-
-    public static final int PURPOSE = BIP44_PURPOSE;
 
     public AvalancheWallet(List<BIP44Address> derivedAddresses) {
         super(derivedAddresses, Coin.AVAX);

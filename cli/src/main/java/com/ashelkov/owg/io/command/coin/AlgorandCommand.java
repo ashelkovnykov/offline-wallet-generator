@@ -3,7 +3,7 @@ package com.ashelkov.owg.io.command.coin;
 import com.beust.jcommander.Parameters;
 
 /**
- *
+ * Sub-command to [[SoloCommand]] for producing an Algorand wallet.
  */
 @Parameters(
         separators = "=",

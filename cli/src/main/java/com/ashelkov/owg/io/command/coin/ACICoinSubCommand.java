@@ -5,8 +5,11 @@ import com.beust.jcommander.converters.IntegerConverter;
 
 import com.ashelkov.owg.io.validation.BinaryIntegerValidator;
 import com.ashelkov.owg.io.validation.PositiveIntegerValidator;
-import com.ashelkov.owg.wallet.generators.WalletGenerator;
+import com.ashelkov.owg.wallet.generators.SingleCoinWalletGenerator;
 
+/**
+ * Specialization of [[CoinSubCommand]] for coins which make use of the full BIP-44 path.
+ */
 public abstract class ACICoinSubCommand extends CoinSubCommand {
 
     //
@@ -31,21 +34,21 @@ public abstract class ACICoinSubCommand extends CoinSubCommand {
             description = "BIP 44 account field for address",
             converter = IntegerConverter.class,
             validateValueWith = PositiveIntegerValidator.class)
-    protected int account = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int account = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     @Parameter(
             names = {OPT_CHANGE_S, OPT_CHANGE_L},
             description = "BIP 44 change field for address",
             converter = IntegerConverter.class,
             validateValueWith = BinaryIntegerValidator.class)
-    protected int change = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int change = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     @Parameter(
             names = {OPT_INDEX_S, OPT_INDEX_L},
             description = "BIP 44 index field for address",
             converter = IntegerConverter.class,
             validateValueWith = PositiveIntegerValidator.class)
-    protected int index = WalletGenerator.DEFAULT_FIELD_VAL;
+    protected int index = SingleCoinWalletGenerator.DEFAULT_FIELD_VAL;
 
     //
     // Getters

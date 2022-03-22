@@ -16,6 +16,9 @@ import com.ashelkov.owg.wallet.util.EncodingUtils;
 import static com.ashelkov.owg.bip.Coin.DOGE;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[DogecoinWallet]] objects.
+ */
 public class DogecoinWalletGenerator extends ACIWalletGenerator {
 
     private static final byte DOGE_IDENTIFICATION_PREFIX = (byte)0x9E;
@@ -28,6 +31,11 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
         this.masterKeyPair = Bip32ECKeyPair.generateKeyPair(seed);
     }
 
+    /**
+     * Generate the default [[DogecoinWallet]] ('account', 'change', 'index', etc. fields have default values).
+     *
+     * @return New Dogecoin wallet containing only the address m/44'/3'/0'/0/0
+     */
     @Override
     public DogecoinWallet generateDefaultWallet() {
 
@@ -37,6 +45,16 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
         return new DogecoinWallet(wrapper);
     }
 
+    /**
+     * Generate a [[DogecoinWallet]] for a particular BIP-44 path. Optionally, generate more than one address by
+     * incrementing the 'index' field.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @param numAddresses Number of addresses to generate
+     * @return New Dogecoin wallet
+     */
     @Override
     public DogecoinWallet generateWallet(int account, int change, int index, int numAddresses) {
 
@@ -49,6 +67,14 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
         return new DogecoinWallet(addresses);
     }
 
+    /**
+     * Generate the Dogecoin address for a particular BIP-44 path.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return Dogecoin address
+     */
     private BIP44Address generateAddress(int account, int change, int index) {
 
         int[] addressPath = getAddressPath(account, change, index);
@@ -79,8 +105,16 @@ public class DogecoinWalletGenerator extends ACIWalletGenerator {
         return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the full BIP-44 path for given Dogecoin account, change, and index values.
+     *
+     * @param account Account value
+     * @param change Change value
+     * @param index Index value
+     * @return BIP-44 path for the given values
+     */
     private int[] getAddressPath(int account, int change, int index) {
-        int purpose = DogecoinWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = DOGE.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, change, index};

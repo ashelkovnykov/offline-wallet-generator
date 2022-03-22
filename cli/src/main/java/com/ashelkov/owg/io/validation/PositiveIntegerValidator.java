@@ -3,6 +3,9 @@ package com.ashelkov.owg.io.validation;
 import com.beust.jcommander.IValueValidator;
 import com.beust.jcommander.ParameterException;
 
+/**
+ * JCommander validator for integer >= 1.
+ */
 public class PositiveIntegerValidator implements IValueValidator<Integer> {
 
     @Override

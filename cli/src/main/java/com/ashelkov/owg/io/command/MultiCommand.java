@@ -3,7 +3,7 @@ package com.ashelkov.owg.io.command;
 import com.beust.jcommander.Parameters;
 
 /**
- *
+ * JCommander command for producing a wallet of multiple cryptocurrency types.
  */
 @Parameters(commandDescription = "Generate a wallet for multiple cryptocurrencies")
 final public class MultiCommand {

@@ -6,8 +6,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Upcoming
 ### Short-term
-- Update internal documentation
-- Update external documentation
 - v1.0.0 release
 
 ### Long-term
@@ -31,6 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Option to use curve ed25519 or secp256k1 for XRP
 - XMR subaddresses
 - AVAX C-chain and P-chain support
+- Code documentation
 ### Changed
 - Replace CLI "cold"/"hot" options with "solo"/"multi" commands
 - Replace coin option with subcommands for "solo" wallets

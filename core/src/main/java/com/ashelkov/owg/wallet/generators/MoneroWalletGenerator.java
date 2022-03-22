@@ -20,12 +20,15 @@ import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.KECCAK_256;
 import static com.ashelkov.owg.wallet.util.Ed25519Utils.ED_25519_CURVE_SPEC;
 
+/**
+ * Factory class to generate [[MoneroWallet]] objects.
+ */
 public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
 
     // All Monero addresses use the same path, but different seeds (not actually sure if the Monero standard is to end
     // the BIP44 path with a hardened 0 account, though)
     public static final int[] ADDRESS_PATH =  {
-            MoneroWallet.PURPOSE | HARDENED,
+            BIP44Address.PURPOSE | HARDENED,
             XMR.getCode() | HARDENED,
             HARDENED
     };
@@ -64,11 +67,28 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
         this.genSpendKey = genSpendKey;
     }
 
+    /**
+     * Generate the default [[MoneroWallet]] (just the standard address).
+     *
+     * @return New Ethereum wallet containing only the standard address at path m/84'/44'/128'
+     */
     @Override
     public MoneroWallet generateDefaultWallet() {
         return generateWallet(DEFAULT_FIELD_VAL, DEFAULT_FIELD_VAL, 1);
     }
 
+    /**
+     * Generate a [[MoneroWallet]] for the standard address or a particular subaddress. Optionally, generate more than
+     * one subaddress by incrementing the subaddress index.
+     *
+     * If multiple subaddresses are desired, but the 'account' and 'index' fields both start at 0, then include the
+     * standard address. Do not count it towards the total.
+     *
+     * @param account Subaddress account value
+     * @param index Subaddress index value
+     * @param numAddresses Number of subaddresses to generate
+     * @return New Monero wallet
+     */
     @Override
     public MoneroWallet generateWallet(int account, int index, int numAddresses) {
         // If the user wants more than 1 address, they actually want subaddresses. However, subaddress 0,0 is the
@@ -122,14 +142,15 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
     }
 
     /**
-     * https://monerodocs.org/public-address/subaddress/
+     * Generate the Monero subaddress for the given 'account' and 'index' values. For more information regarding Monero
+     * subaddresses, see https://monerodocs.org/public-address/subaddress/ .
      *
-     * @param addressPath
-     * @param standardPrivateViewKey
-     * @param standardPublicSpendKey
-     * @param account
-     * @param index
-     * @return
+     * @param addressPath Not exactly a BIP-44 path; actually a collection of indices used by the [[MoneroAddress]]
+     * @param standardPrivateViewKey Private view key of the Monero standard address
+     * @param standardPublicSpendKey Public spend key of the Monero standard address
+     * @param account Account for which to generate subaddress
+     * @param index Index for which to generate subaddress
+     * @return Monero subaddress
      */
     private MoneroAddress generateSubaddress(
             int[] addressPath,
@@ -158,6 +179,15 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
         return generateMoneroAddress(MAINNET_SUBADDRESS_NETWORK_BYTE, addressPath, D.toByteArray(), C.toByteArray());
     }
 
+    /**
+     * Generate a Monero standard address or subaddress from a pair of Monero public keys.
+     *
+     * @param networkByte The address prefix byte which determines what kind of address this is and from which net
+     * @param addressPath Not exactly a BIP-44 path; actually a collection of indices used by the [[MoneroAddress]]
+     * @param publicSpendKey Public spend key bytes
+     * @param publicViewKey Public view key bytes
+     * @return Monero address
+     */
     private MoneroAddress generateMoneroAddress(
             byte networkByte,
             int[] addressPath,
@@ -188,8 +218,15 @@ public class MoneroWalletGenerator extends AccountIndexWalletGenerator {
         return new MoneroAddress(address, addressPath, publicSpendKeyText, publicViewKeyText);
     }
 
+    /**
+     * Create an ordered set of indices which are used by [[MoneroAddress]].
+     *
+     * @param account Subaddress account
+     * @param index Subaddress index
+     * @return Monero "path"
+     */
     private int[] getSubaddressPath(int account, int index) {
-        int purpose = MoneroWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = XMR.getCode() | HARDENED;
 
         // Since this path is for printing and not key generation, account and index definitely should not be hardened

@@ -1,9 +1,10 @@
 package com.ashelkov.owg.bip;
 
+/**
+ * Enumeration of supported coins and their generally-accepted [coin codes](
+ * https://github.com/satoshilabs/slips/blob/master/slip-0044.md).
+ */
 public enum Coin {
-
-    // Coin chain codes derived from here:
-    // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
     BTC(0),
     LTC(2),
     DOGE(3),

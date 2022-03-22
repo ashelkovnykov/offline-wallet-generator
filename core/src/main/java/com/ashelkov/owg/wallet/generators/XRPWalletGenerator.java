@@ -16,6 +16,9 @@ import static com.ashelkov.owg.bip.Coin.XRP;
 import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 
+/**
+ * Factory class to generate [[XRPWallet]] objects.
+ */
 public class XRPWalletGenerator extends AccountWalletGenerator {
 
     private static final byte MASTER_PUB_KEY_PREFIX = (byte)0xED;
@@ -30,11 +33,25 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
         this.legacy = legacy;
     }
 
+    /**
+     * Generate the default [[XRPWallet]] ('account' field has default value).
+     *
+     * @return New XRP wallet containing only the address m/44'/144'/0'/0/0 (if legacy XRP wallet) or m/44'/144'/0' (if
+     *         modern XRP wallet)
+     */
     @Override
     public XRPWallet generateDefaultWallet() {
         return generateWallet(DEFAULT_FIELD_VAL, 1);
     }
 
+    /**
+     * Generate a [[XRPWallet]] for a particular BIP-44 path. Optionally, generate more than one address by incrementing
+     * the 'account' field.
+     *
+     * @param account Account value
+     * @param numAddresses Number of addresses to generate
+     * @return New XRP wallet
+     */
     @Override
     public XRPWallet generateWallet(int account, int numAddresses) {
 
@@ -56,11 +73,14 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
     }
 
     /**
+     * Generate the XRP address for a particular BIP-44 path using the secp256k1 curve.
      *
-     * https://xrpl.org/accounts.html#address-encoding
+     * This is the old way of generating XRP addresses. Only use this to regenerate addresses made at the time that this
+     * was the correct way to generate XRP addresses. New addresses should be generated using curve ed25519. For more
+     * information, see https://xrpl.org/accounts.html#address-encoding .
      *
-     * @param account
-     * @return
+     * @param account Account value
+     * @return XRP address
      */
     private BIP44Address generateAddressSECP256k1(int account) {
 
@@ -77,7 +97,7 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
         byte[] rawAddress = new byte[25];
         System.arraycopy(payload, 0, rawAddress, 0, 21);
         System.arraycopy(checksum, 0, rawAddress, 21, CHECKSUM_LENGTH);
-        String address = EncodingUtils.base58Ripple(rawAddress);
+        String address = EncodingUtils.base58XRP(rawAddress);
 
         String privKeyText = null;
         String pubKeyText = null;
@@ -91,6 +111,15 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
         return new BIP44Address(address, addressPath, privKeyText, pubKeyText);
     }
 
+    /**
+     * Generate the XRP address for a particular BIP-44 path using the ed25519 curve.
+     *
+     * This is the correct, modern way of generating XRP addresses. For more information, see
+     * https://xrpl.org/accounts.html#address-encoding .
+     *
+     * @param account Account value
+     * @return XRP address
+     */
     private BIP44Address generateAddressED25519(int account) {
 
         int[] addressPathED25519 = getAddressPathED25519(account);
@@ -111,20 +140,32 @@ public class XRPWalletGenerator extends AccountWalletGenerator {
         byte[] rawAddress = new byte[25];
         System.arraycopy(payload, 0, rawAddress, 0, 21);
         System.arraycopy(checksum, 0, rawAddress, 21, CHECKSUM_LENGTH);
-        String address = EncodingUtils.base58Ripple(rawAddress);
+        String address = EncodingUtils.base58XRP(rawAddress);
 
         return new BIP44Address(address, addressPathED25519);
     }
 
+    /**
+     * Generate the full BIP-44 path for a given legacy XRP account.
+     *
+     * @param account Account value
+     * @return BIP-44 path for the legacy XRP address
+     */
     private int[] getAddressPath(int account) {
-        int purpose = XRPWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = XRP.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED, 0, 0};
     }
 
+    /**
+     * Generate the full BIP-44 path for a given modern XRP account.
+     *
+     * @param account Account value
+     * @return BIP-44 path for the modern XRP address
+     */
     private int[] getAddressPathED25519(int account) {
-        int purpose = XRPWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = XRP.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};

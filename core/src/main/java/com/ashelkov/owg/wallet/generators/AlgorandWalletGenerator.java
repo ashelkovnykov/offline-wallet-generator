@@ -16,6 +16,9 @@ import static com.ashelkov.owg.bip.Constants.CHECKSUM_LENGTH;
 import static com.ashelkov.owg.bip.Constants.HARDENED;
 import static com.ashelkov.owg.wallet.util.DigestUtils.SHA_512_256;
 
+/**
+ * Factory class to generate [[AlgorandWallet]] objects.
+ */
 public class AlgorandWalletGenerator extends AccountWalletGenerator {
 
     private static final int ADDRESS_LENGTH = 58;
@@ -29,6 +32,11 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
         super(seed, genPrivKey, genPubKey);
     }
 
+    /**
+     * Generate the default [[AlgorandWallet]] ('account' field has default value).
+     *
+     * @return New Algorand wallet containing only the address m/44'/283'/0'
+     */
     @Override
     public AlgorandWallet generateDefaultWallet() {
 
@@ -38,6 +46,14 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
         return new AlgorandWallet(wrapper);
     }
 
+    /**
+     * Generate an [[AlgorandWallet]] for a particular BIP-44 'account'. Optionally, generate more than one address by
+     * incrementing the 'account' field.
+     *
+     * @param account Account value
+     * @param numAddresses Number of addresses to generate
+     * @return New Algorand wallet
+     */
     @Override
     public AlgorandWallet generateWallet(int account, int numAddresses) {
 
@@ -50,6 +66,12 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
         return new AlgorandWallet(addresses);
     }
 
+    /**
+     * Generate the Algorand address for a particular BIP-44 'account'.
+     *
+     * @param account Account value
+     * @return Algorand address
+     */
     private BIP44Address generateAddress(int account) {
 
         int[] addressPath = getAddressPath(account);
@@ -76,8 +98,14 @@ public class AlgorandWalletGenerator extends AccountWalletGenerator {
         return new BIP44Address(address, addressPath);
     }
 
+    /**
+     * Generate the full BIP-44 path for a given Algorand account value.
+     *
+     * @param account Account value
+     * @return BIP-44 path for the given account
+     */
     private int[] getAddressPath(int account) {
-        int purpose = AlgorandWallet.PURPOSE | HARDENED;
+        int purpose = BIP44Address.PURPOSE | HARDENED;
         int coinCode = ALGO.getCode() | HARDENED;
 
         return new int[] {purpose, coinCode, account | HARDENED};
