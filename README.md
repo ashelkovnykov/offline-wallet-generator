@@ -62,7 +62,7 @@ Windows users should use Docker. Linux and MacOS users may use whichever method 
 The default Docker command for the tool is:
 
 ```shell
-docker run --rm -v [/path/to/output/]:/app/output/:rw ashelkov/owg:latest
+docker run --rm -it -v ~/:/app/output/:rw ashelkov/owg:latest
 ```
 
 ### Released Build
@@ -262,7 +262,7 @@ output directory:
 
 ```shell
 # Docker (note that Docker always needs a provided output directory)
-docker run --rm -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
 
 # Release build
 ./owg.sh -m -p solo -n 10 DOGE
@@ -276,13 +276,13 @@ mnemonic, no password, and a custom output directory:
 
 ```shell
 # Docker (note that Docker always uses a default file name)
-docker run --rm -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
 ./owg.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account=2 --change=1 --index=3
 
 # Local build
-./bin/local.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC -a 2 -c 1 -i 3
+./bin/local.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account 2 --change 1 -i 3
 ```
 
 Generate a multi-coin wallet containing the default address for every supported coin using a random 24-word mnemonic, no
@@ -290,7 +290,7 @@ password, and output the results to the console (including public and private ke
 
 ```shell
 # Docker (note that the Docker command for console output is slightly different than usual)
-docker run --rm --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE -k -K multi
+docker run --rm -it --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE -k -K multi
 
 # Release build
 ./owg.sh -f CONSOLE -k -K multi
