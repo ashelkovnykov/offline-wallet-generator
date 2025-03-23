@@ -98,7 +98,7 @@ The default release build command for the tool is:
 ./owg.sh -h
 ```
 
-### Built it Yourself
+### Build it Yourself
 
 1. Install [OpenJDK 16.0.1](https://jdk.java.net/archive/)
 2. Pull the latest code using `git`:
@@ -135,8 +135,10 @@ Usage: <main class> [options] [command] [command options]
       Show this usage details page
     -p, --mnemonic-password
       Password for mnemonic used to generate wallet master key
-    -o, --output-file
-      Directory or path for output files
+    -F, --output-filename
+      Custom filename for the output file (without extension)
+    -o, --output-dir
+      Directory path for output files
       Default: /home/ashelkov/.wallets
     -w, --overwrite
       Overwrite wallet if already exists
@@ -300,10 +302,10 @@ mnemonic, no password, and a custom output directory:
 docker run --rm -it -v /home/user/wallets/:/app/custom/:rw -e OUTPUT_DIR=/app/custom ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
-./owg.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account=2 --change=1 --index=3
+./owg.sh -e 128 -o ~/wallets/ solo -n 2 BTC --account=2 --change=1 --index=3
 
 # Local build
-./bin/local.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account 2 --change 1 -i 3
+./bin/local.sh -e 128 -o ~/wallets/ solo -n 2 BTC --account 2 --change 1 -i 3
 ```
 
 Generate a multi-coin wallet containing the default address for every supported coin using a random 24-word mnemonic, no
@@ -320,6 +322,19 @@ docker run --rm -it --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE
 ./bin/local.sh -f CONSOLE -k -K multi
 ```
 
+Generate a Bitcoin wallet with a custom filename:
+
+```shell
+# Docker
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -F my-bitcoin-wallet solo BTC
+
+# Release build
+./owg.sh -F my-bitcoin-wallet solo BTC
+
+# Local build
+./bin/local.sh -F my-bitcoin-wallet solo BTC
+```
+
 ## Output
 
 ### Docker
@@ -331,7 +346,7 @@ When using Docker, you can specify the output directory in several ways:
 docker run --rm -it -v /host/path:/app/output -e OUTPUT_DIR=/app/output ashelkov/owg:latest [options]
 ```
 
-2. Use the -o/--output-file command-line argument:
+2. Use the -o/--output-dir command-line argument to specify the output directory:
 ```shell
 docker run --rm -it -v /host/path:/app/output ashelkov/owg:latest -o /app/output [options]
 ```
@@ -349,11 +364,38 @@ docker run --rm --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE [op
 ### Release and Local Builds
 
 When saving to a file, if no custom output location is specified then the tool will write the wallet to the default
-wallet directory. The name of the file will be `{coin}.{ext}`, where:
+wallet directory. The name of the file will be:
+- If using `-F/--output-filename`: `{custom-filename}.{ext}`
+- Otherwise: `{coin}.{ext}`
+
+Where:
+- `{custom-filename}` is the value specified with the `-F/--output-filename` flag
 - `{coin}` is the cryptocurrency code (for single-coin wallets) or `multi` (for a multi-coin wallet)
-- `{ext}` is the file extension of the output type
+- `{ext}` is the file extension of the output type (default: `wal`)
 
 The default wallet directory is determined by the operating system:
 - Linux: `$HOME/.wallets/`
 - MacOS: `$HOME/Library/Wallets/`
 - Windows: `%APPDATA%\`
+
+## File Output Options
+
+There are two main ways to control the output file location:
+
+1. `-o/--output-dir`: Specifies the **directory** where the wallet file will be saved. For example:
+   ```
+   -o ~/wallets/
+   ```
+
+2. `-F/--output-filename`: Specifies the **filename** (without extension) to use for the wallet file. For example:
+   ```
+   -F my-custom-wallet
+   ```
+
+When both options are used together, the file will be saved in the specified directory with the specified filename:
+```
+-o ~/wallets/ -F my-custom-wallet
+```
+This would save the file as `~/wallets/my-custom-wallet.wal`
+
+If neither option is specified, the default behavior is to save the file in the OS-specific default wallet directory with the coin name as the filename.
