@@ -65,6 +65,25 @@ The default Docker command for the tool is:
 docker run --rm -it -v ~/:/app/output/:rw ashelkov/owg:latest
 ```
 
+You can customize the output directory for generated wallets in several ways:
+
+1. Using the volume mounting and environment variable:
+```shell
+docker run --rm -it -v /custom/path:/custom/output -e OUTPUT_DIR=/custom/output ashelkov/owg:latest
+```
+
+2. Using the command-line argument:
+```shell
+docker run --rm -it -v /custom/path:/custom/path ashelkov/owg:latest -o /custom/path
+```
+
+3. When building the image (if you're building from source):
+```shell
+docker build --build-arg OUTPUT_DIR=/custom/path -t wallet-generator .
+```
+
+Note that if you specify an output directory both via environment variable and command-line argument, the command-line argument takes precedence.
+
 ### Released Build
 
 1. Install [OpenJDK 16.0.1](https://jdk.java.net/archive/)
@@ -275,8 +294,8 @@ Generate a wallet file for the Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/
 mnemonic, no password, and a custom output directory:
 
 ```shell
-# Docker (note that Docker always uses a default file name)
-docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
+# Docker with custom output directory
+docker run --rm -it -v /home/user/wallets/:/custom/output/:rw -e OUTPUT_DIR=/custom/output ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
 ./owg.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account=2 --change=1 --index=3
@@ -303,8 +322,19 @@ docker run --rm -it --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE
 
 ### Docker
 
-If saving to file, Docker always requires an explicit output directory and always uses a default file name for the
-wallet.
+When using Docker, you can specify the output directory in several ways:
+
+1. Mount a volume and set the OUTPUT_DIR environment variable:
+```shell
+docker run --rm -it -v /host/path:/container/path -e OUTPUT_DIR=/container/path ashelkov/owg:latest [options]
+```
+
+2. Use the -o/--output-file command-line argument:
+```shell
+docker run --rm -it -v /host/path:/container/path ashelkov/owg:latest -o /container/path [options]
+```
+
+If both the environment variable and command-line argument are specified, the command-line argument takes precedence.
 
 Printing to console requires a slightly different Docker command:
 
