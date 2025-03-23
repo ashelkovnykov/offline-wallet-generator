@@ -32,7 +32,7 @@ final public class Params {
     private static final String OPT_OUTPUT_FORMAT_L = "--format";
     private static final String OPT_OUTPUT_FORMAT_S = "-f";
 
-    private static final String OPT_OUTPUT_FILE_L = "--output-dir";
+    private static final String OPT_OUTPUT_FILE_L = "--output-file";
     private static final String OPT_OUTPUT_FILE_S = "-o";
 
     private static final String OPT_OUTPUT_FILENAME_L = "--output-filename";
@@ -99,7 +99,8 @@ final public class Params {
 
     @Parameter(
             names = {OPT_OUTPUT_FILE_S, OPT_OUTPUT_FILE_L},
-            description = "Directory path for output files")
+            description = "Path for output files (directory path or complete filepath with extension)",
+            converter = PathConverter.class)
     private Path outputPath = DEFAULT_OUTPUT_DIR;
 
     @Parameter(

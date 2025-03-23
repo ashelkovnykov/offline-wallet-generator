@@ -1,5 +1,11 @@
 #!/usr/bin/env sh
 
+# Default output directory in the container
+DEFAULT_OUTPUT_DIR="/app/output"
+
+# Create the default output directory
+mkdir -p "$DEFAULT_OUTPUT_DIR"
+
 # Check if OUTPUT_DIR environment variable is set
 if [ ! -z "$OUTPUT_DIR" ]; then
   # Make sure the path is absolute
@@ -26,6 +32,20 @@ if [ ! -z "$OUTPUT_DIR" ]; then
   # If output flag is not explicitly specified in arguments, add it
   if [ "$OUTPUT_FLAG_FOUND" -eq 0 ]; then
     ARGS="-o $OUTPUT_DIR"
+  fi
+else
+  # No OUTPUT_DIR set, use the default and add the -o flag if not present
+  OUTPUT_FLAG_FOUND=0
+  for arg in "$@"; do
+    if [ "$arg" = "-o" ] || [ "$arg" = "--output-file" ]; then
+      OUTPUT_FLAG_FOUND=1
+      break
+    fi
+  done
+  
+  # If output flag is not explicitly specified in arguments, add the default
+  if [ "$OUTPUT_FLAG_FOUND" -eq 0 ]; then
+    ARGS="-o $DEFAULT_OUTPUT_DIR"
   fi
 fi
 

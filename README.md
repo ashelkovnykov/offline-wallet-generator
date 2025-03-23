@@ -82,9 +82,9 @@ docker run --rm -it -v /custom/path:/app/output ashelkov/owg:latest -o /app/outp
 docker build --build-arg OUTPUT_DIR=/app/output -t wallet-generator .
 ```
 
-**Important**: Always use absolute paths with Docker (paths that begin with `/`). The output directory inside the container must match the path used in your volume mount. For example, if you mount `-v /host/path:/app/output`, then set `-e OUTPUT_DIR=/app/output` or use `-o /app/output`.
+**Important**: The path you specify with OUTPUT_DIR or -o should match the container path in your volume mount. For example, if your volume mount is `-v /host/path:/app/output`, then you should use `-e OUTPUT_DIR=/app/output` or `-o /app/output`. This ensures the files are saved where you expect them to be on your host machine.
 
-Note that if you specify an output directory both via environment variable and command-line argument, the command-line argument takes precedence.
+If both the environment variable and command-line argument are specified, the command-line argument takes precedence.
 
 ### Released Build
 
@@ -137,8 +137,8 @@ Usage: <main class> [options] [command] [command options]
       Password for mnemonic used to generate wallet master key
     -F, --output-filename
       Custom filename for the output file (without extension)
-    -o, --output-dir
-      Directory path for output files
+    -o, --output-file
+      Path for output files (directory path or complete filepath with extension)
       Default: /home/ashelkov/.wallets
     -w, --overwrite
       Overwrite wallet if already exists
@@ -284,7 +284,7 @@ Generate a wallet file for the first 10 Dogecoin addresses using a custom mnemon
 output directory:
 
 ```shell
-# Docker (note that Docker needs matching volume mount and output directory)
+# Docker
 docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
 
 # Release build
@@ -299,7 +299,7 @@ mnemonic, no password, and a custom output directory:
 
 ```shell
 # Docker with custom output directory
-docker run --rm -it -v /home/user/wallets/:/app/custom/:rw -e OUTPUT_DIR=/app/custom ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -o /app/output solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
 ./owg.sh -e 128 -o ~/wallets/ solo -n 2 BTC --account=2 --change=1 --index=3
@@ -335,67 +335,66 @@ docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -
 ./bin/local.sh -F my-bitcoin-wallet solo BTC
 ```
 
-## Output
+## Output File Options
 
-### Docker
+There are three flexible ways to specify where wallet files are saved:
 
-When using Docker, you can specify the output directory in several ways:
+### 1. Specify a Directory
 
-1. Mount a volume and set the OUTPUT_DIR environment variable:
-```shell
-docker run --rm -it -v /host/path:/app/output -e OUTPUT_DIR=/app/output ashelkov/owg:latest [options]
-```
-
-2. Use the -o/--output-dir command-line argument to specify the output directory:
-```shell
-docker run --rm -it -v /host/path:/app/output ashelkov/owg:latest -o /app/output [options]
-```
-
-**Important**: The path you specify with OUTPUT_DIR or -o must match the container path in your volume mount. For example, if your volume mount is `-v /host/path:/app/output`, you should use `-e OUTPUT_DIR=/app/output` or `-o /app/output`.
-
-If both the environment variable and command-line argument are specified, the command-line argument takes precedence.
-
-Printing to console requires a slightly different Docker command:
+Use the `-o/--output-file` flag to specify a directory where the wallet file will be saved:
 
 ```shell
-docker run --rm --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE [options]
+-o ~/wallets/
 ```
 
-### Release and Local Builds
+The filename will be automatically generated based on the coin type (e.g., `BTC.wal`, `multi.wal`), or you can customize it with the `-F` flag.
 
-When saving to a file, if no custom output location is specified then the tool will write the wallet to the default
-wallet directory. The name of the file will be:
-- If using `-F/--output-filename`: `{custom-filename}.{ext}`
-- Otherwise: `{coin}.{ext}`
+### 2. Specify a Custom Filename 
 
-Where:
-- `{custom-filename}` is the value specified with the `-F/--output-filename` flag
-- `{coin}` is the cryptocurrency code (for single-coin wallets) or `multi` (for a multi-coin wallet)
-- `{ext}` is the file extension of the output type (default: `wal`)
+Use the `-F/--output-filename` flag to specify just the filename (without extension):
 
-The default wallet directory is determined by the operating system:
-- Linux: `$HOME/.wallets/`
-- MacOS: `$HOME/Library/Wallets/`
-- Windows: `%APPDATA%\`
-
-## File Output Options
-
-There are two main ways to control the output file location:
-
-1. `-o/--output-dir`: Specifies the **directory** where the wallet file will be saved. For example:
-   ```
-   -o ~/wallets/
-   ```
-
-2. `-F/--output-filename`: Specifies the **filename** (without extension) to use for the wallet file. For example:
-   ```
-   -F my-custom-wallet
-   ```
-
-When both options are used together, the file will be saved in the specified directory with the specified filename:
+```shell
+-F my-custom-wallet
 ```
+
+This will save the file with your custom name in the default directory for your operating system.
+
+### 3. Specify a Complete File Path
+
+You can now provide a complete path including the filename and extension with the `-o` flag:
+
+```shell
+-o ~/wallets/my-bitcoin-2025.wal
+```
+
+The application will recognize this as a complete file path and use it as is.
+
+### 4. Combine Directory and Custom Filename
+
+You can combine the `-o` and `-F` flags to specify both the directory and filename:
+
+```shell
 -o ~/wallets/ -F my-custom-wallet
 ```
-This would save the file as `~/wallets/my-custom-wallet.wal`
 
-If neither option is specified, the default behavior is to save the file in the OS-specific default wallet directory with the coin name as the filename.
+This would save the file as `~/wallets/my-custom-wallet.wal`.
+
+### Docker Simplified Usage
+
+When using Docker, the path handling has been improved so you don't need to worry about matching paths exactly. Just make sure your volume is mounted correctly:
+
+```shell
+docker run --rm -it -v /host/path:/app/output/:rw ashelkov/owg:latest -F my-wallet solo BTC
+```
+
+This will automatically save the file to `/host/path/my-wallet.wal` on your host machine.
+
+### Default Behavior
+
+If no output options are specified, the default behavior is to save the file in the OS-specific default wallet directory with the coin name as the filename:
+
+- Linux: `$HOME/.wallets/{coin}.wal`
+- MacOS: `$HOME/Library/Wallets/{coin}.wal`
+- Windows: `%APPDATA%\Wallets\{coin}.wal`
+
+Where `{coin}` is the cryptocurrency code (for single-coin wallets) or `multi` (for a multi-coin wallet).
