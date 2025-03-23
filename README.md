@@ -69,18 +69,20 @@ You can customize the output directory for generated wallets in several ways:
 
 1. Using the volume mounting and environment variable:
 ```shell
-docker run --rm -it -v /custom/path:/custom/output -e OUTPUT_DIR=/custom/output ashelkov/owg:latest
+docker run --rm -it -v /custom/path:/app/output -e OUTPUT_DIR=/app/output ashelkov/owg:latest
 ```
 
 2. Using the command-line argument:
 ```shell
-docker run --rm -it -v /custom/path:/custom/path ashelkov/owg:latest -o /custom/path
+docker run --rm -it -v /custom/path:/app/output ashelkov/owg:latest -o /app/output
 ```
 
 3. When building the image (if you're building from source):
 ```shell
-docker build --build-arg OUTPUT_DIR=/custom/path -t wallet-generator .
+docker build --build-arg OUTPUT_DIR=/app/output -t wallet-generator .
 ```
+
+**Important**: Always use absolute paths with Docker (paths that begin with `/`). The output directory inside the container must match the path used in your volume mount. For example, if you mount `-v /host/path:/app/output`, then set `-e OUTPUT_DIR=/app/output` or use `-o /app/output`.
 
 Note that if you specify an output directory both via environment variable and command-line argument, the command-line argument takes precedence.
 
@@ -280,7 +282,7 @@ Generate a wallet file for the first 10 Dogecoin addresses using a custom mnemon
 output directory:
 
 ```shell
-# Docker (note that Docker always needs a provided output directory)
+# Docker (note that Docker needs matching volume mount and output directory)
 docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
 
 # Release build
@@ -295,7 +297,7 @@ mnemonic, no password, and a custom output directory:
 
 ```shell
 # Docker with custom output directory
-docker run --rm -it -v /home/user/wallets/:/custom/output/:rw -e OUTPUT_DIR=/custom/output ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
+docker run --rm -it -v /home/user/wallets/:/app/custom/:rw -e OUTPUT_DIR=/app/custom ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
 ./owg.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account=2 --change=1 --index=3
@@ -326,13 +328,15 @@ When using Docker, you can specify the output directory in several ways:
 
 1. Mount a volume and set the OUTPUT_DIR environment variable:
 ```shell
-docker run --rm -it -v /host/path:/container/path -e OUTPUT_DIR=/container/path ashelkov/owg:latest [options]
+docker run --rm -it -v /host/path:/app/output -e OUTPUT_DIR=/app/output ashelkov/owg:latest [options]
 ```
 
 2. Use the -o/--output-file command-line argument:
 ```shell
-docker run --rm -it -v /host/path:/container/path ashelkov/owg:latest -o /container/path [options]
+docker run --rm -it -v /host/path:/app/output ashelkov/owg:latest -o /app/output [options]
 ```
+
+**Important**: The path you specify with OUTPUT_DIR or -o must match the container path in your volume mount. For example, if your volume mount is `-v /host/path:/app/output`, you should use `-e OUTPUT_DIR=/app/output` or `-o /app/output`.
 
 If both the environment variable and command-line argument are specified, the command-line argument takes precedence.
 

@@ -2,6 +2,15 @@
 
 # Check if OUTPUT_DIR environment variable is set
 if [ ! -z "$OUTPUT_DIR" ]; then
+  # Make sure the path is absolute
+  case "$OUTPUT_DIR" in
+    /*) # Path is already absolute
+      ;;
+    *) # Path is relative, make it absolute from current directory
+      OUTPUT_DIR="$(pwd)/$OUTPUT_DIR"
+      ;;
+  esac
+  
   # Create the output directory if it does not exist
   mkdir -p "$OUTPUT_DIR"
   
