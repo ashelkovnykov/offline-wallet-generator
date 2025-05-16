@@ -26,17 +26,9 @@ WORKDIR /app
 RUN apt update && \
     DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
 
-# Default output directory as an absolute path, can be overridden during docker build or run
-ARG OUTPUT_DIR="/app/output"
-ENV OUTPUT_DIR=${OUTPUT_DIR}
-
-# Create output directory
-RUN mkdir -p ${OUTPUT_DIR}
-
 # Copy only the necessary files from the builder stage
-COPY --from=builder /app/offline-wallet-generator/bin/release.sh ./bin/
-COPY --from=builder /app/offline-wallet-generator/lib/ ./lib/
-COPY --from=builder /app/offline-wallet-generator/bin/entrypoint.sh ./bin/
+COPY --from=builder /app/offline-wallet-generator/docker/entrypoint.sh ./bin/
+COPY --from=builder /app/offline-wallet-generator/build/cli/libs/cli.jar ./bin/
 RUN chmod +x ./bin/entrypoint.sh
 
 ENTRYPOINT ["./bin/entrypoint.sh"]

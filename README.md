@@ -44,15 +44,16 @@ what he does, and how he uses his crypto.
 
 ## Installation
 
-There are three methods to install and use this tool:
+There are four methods to use this tool:
 
-- Docker
+- Docker (released build)
+- Docker (build-it-yourself)
 - Released build
 - Build it yourself
 
-Windows users should use Docker. Linux and MacOS users may use whichever method they like. Note that:
-1. Building the tool from source is the safest way to use the tool
-2. There's nothing stopping Windows users from building the tool from source; the process is just not documented here
+Docker is likely the preferred way to run the tool for most users (particularly for Windows users). Note:
+1. The safest way to use the tool is to compile it yourself - either in your local environment, or using Docker
+2. The process for building from source is documented only for Linux and macOS
 
 ### Docker
 
@@ -62,29 +63,28 @@ Windows users should use Docker. Linux and MacOS users may use whichever method 
 The default Docker command for the tool is:
 
 ```shell
-docker run --rm -it -v ~/:/app/output/:rw ashelkov/owg:latest
+docker run --rm -it -v ./:/app/output/:rw ashelkov/owg:latest
 ```
 
-You can customize the output directory for generated wallets in several ways:
+This command will use the Docker image of the official release from DockerHub. However, it's also possible to use a local version of the Docker image. To do so, first build the Docker image from the local code using the helper script:
 
-1. Using the volume mounting and environment variable:
 ```shell
-docker run --rm -it -v /custom/path:/app/output -e OUTPUT_DIR=/app/output ashelkov/owg:latest
+./bin/docker/build.sh
 ```
 
-2. Using the command-line argument:
+The command to run this image is the same as the command above, but now referencing the local image:
+
 ```shell
-docker run --rm -it -v /custom/path:/app/output ashelkov/owg:latest -o /app/output
+docker run --rm -it -v ./:/app/output/:rw owg:latest
 ```
 
-3. When building the image (if you're building from source):
+To make this easier, two helper scripts are included: `bin/docker/local.sh` and `bin/docker/release.sh`. These scripts will run the above local / release Docker commands. Using the above Docker commands requires manually mounting the location to which OWG will write output, whereas these helper scripts will take care of it automatically. Use the scripts as you would normally use OWG:
+
 ```shell
-docker build --build-arg OUTPUT_DIR=/app/output -t wallet-generator .
+./bin/docker/local.sh -o my/wallets/folder -F my-wallet -p solo BTC
 ```
 
-**Important**: The path you specify with OUTPUT_DIR or -o should match the container path in your volume mount. For example, if your volume mount is `-v /host/path:/app/output`, then you should use `-e OUTPUT_DIR=/app/output` or `-o /app/output`. This ensures the files are saved where you expect them to be on your host machine.
-
-If both the environment variable and command-line argument are specified, the command-line argument takes precedence.
+**NOTE:** When using the Docker helper scripts, the argument to `-o / --output-file` must always be a directory, not a file path. To control the name of the output file, use the `-F / --output-filename` option instead.
 
 ### Released Build
 
