@@ -16,7 +16,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Private/public keys for ALGO
 - Alternate output types (YAML, JSON)
 
-## [Unreleased]
+## [1.1.0] - 2025-05-17
+### Added
+- Local image Docker build script
+- Helper scripts for running OWG using Docker
+### Changed
+- Improved Docker image build flow
+### Fixed
+- Broken `-o / --output-file`
 
 ## [1.0.0] - 2022-03-21
 ### Added
