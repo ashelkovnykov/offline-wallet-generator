@@ -22,10 +22,16 @@ public final class WalletWriter extends Writer {
 
     private final Path basePath;
     private final boolean overwrite;
+    private final String customFilename;
 
-    public WalletWriter(Path basePath, boolean overwrite) {
+    public WalletWriter(Path basePath, boolean overwrite, String customFilename) {
         this.basePath = basePath;
         this.overwrite = overwrite;
+        this.customFilename = customFilename;
+    }
+
+    public WalletWriter(Path basePath, boolean overwrite) {
+        this(basePath, overwrite, null);
     }
 
     /**
@@ -35,15 +41,17 @@ public final class WalletWriter extends Writer {
      * @param wallet Wallet to output
      */
     public void saveWallet(String mnemonic, Wallet wallet) {
-
         logger.debug(String.format("WalletWriter.save() called with base path '%s'", basePath));
 
-        Path outputPath = FileUtils.resolvePath(basePath, wallet.getIdentifier(), DEFAULT_FILE_EXT);
+        // Use custom filename if provided, otherwise use the wallet identifier
+        String filename = customFilename != null ? customFilename : wallet.getIdentifier();
+        
+        // Use enhanced path resolution logic to determine the final output path
+        Path outputPath = FileUtils.resolvePath(basePath, filename, DEFAULT_FILE_EXT);
 
         logger.debug(String.format("Attempting to save wallet to file '%s'", outputPath));
 
         try (BufferedWriter writer = FileUtils.getBufferedWriter(outputPath, overwrite)) {
-
             // Output timestamp
             writer.write(new Date(System.currentTimeMillis()).toString());
             writer.write('\n');
@@ -65,6 +73,6 @@ public final class WalletWriter extends Writer {
             System.exit(1);
         }
 
-        System.out.println("Saved wallet to " + outputPath);
+        System.out.println("Saved wallet to file: " + outputPath);
     }
 }

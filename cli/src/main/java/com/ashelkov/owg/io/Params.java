@@ -35,6 +35,9 @@ final public class Params {
     private static final String OPT_OUTPUT_FILE_L = "--output-file";
     private static final String OPT_OUTPUT_FILE_S = "-o";
 
+    private static final String OPT_OUTPUT_FILENAME_L = "--output-filename";
+    private static final String OPT_OUTPUT_FILENAME_S = "-F";
+
     private static final String OPT_OVERWRITE_L = "--overwrite";
     private static final String OPT_OVERWRITE_S = "-w";
 
@@ -96,9 +99,14 @@ final public class Params {
 
     @Parameter(
             names = {OPT_OUTPUT_FILE_S, OPT_OUTPUT_FILE_L},
-            description = "Directory or path for output files",
+            description = "Path for output files (directory path or complete filepath with extension)",
             converter = PathConverter.class)
     private Path outputPath = DEFAULT_OUTPUT_DIR;
+
+    @Parameter(
+            names = {OPT_OUTPUT_FILENAME_S, OPT_OUTPUT_FILENAME_L},
+            description = "Custom filename for the output file (without extension)")
+    private String outputFilename;
 
     @Parameter(
             names = {OPT_OVERWRITE_S, OPT_OVERWRITE_L},
@@ -206,7 +214,7 @@ final public class Params {
     //
 
     public Writer getOutputWriter() {
-        return WriterFactory.buildWriter(outputFormat, outputPath, overwrite);
+        return WriterFactory.buildWriter(outputFormat, outputPath, overwrite, outputFilename);
     }
 
     public boolean isGenPrivKey() {
@@ -227,6 +235,10 @@ final public class Params {
 
     public String getMnemonicPassword() {
         return mnemonicPassword;
+    }
+
+    public String getOutputFilename() {
+        return outputFilename;
     }
 
     public boolean isHelp() {

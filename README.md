@@ -44,15 +44,16 @@ what he does, and how he uses his crypto.
 
 ## Installation
 
-There are three methods to install and use this tool:
+There are four methods to use this tool:
 
-- Docker
+- Docker (released build)
+- Docker (build-it-yourself)
 - Released build
 - Build it yourself
 
-Windows users should use Docker. Linux and MacOS users may use whichever method they like. Note that:
-1. Building the tool from source is the safest way to use the tool
-2. There's nothing stopping Windows users from building the tool from source; the process is just not documented here
+Docker is likely the preferred way to run the tool for most users (particularly for Windows users). Note:
+1. The safest way to use the tool is to compile it yourself - either in your local environment, or using Docker
+2. The process for building from source is documented only for Linux and macOS
 
 ### Docker
 
@@ -62,8 +63,28 @@ Windows users should use Docker. Linux and MacOS users may use whichever method 
 The default Docker command for the tool is:
 
 ```shell
-docker run --rm -it -v ~/:/app/output/:rw ashelkov/owg:latest
+docker run --rm -it -v ./:/app/output/:rw ashelkov/owg:latest
 ```
+
+This command will use the Docker image of the official release from DockerHub. However, it's also possible to use a local version of the Docker image. To do so, first build the Docker image from the local code using the helper script:
+
+```shell
+./bin/docker/build.sh
+```
+
+The command to run this image is the same as the command above, but now referencing the local image:
+
+```shell
+docker run --rm -it -v ./:/app/output/:rw owg:latest
+```
+
+To make this easier, two helper scripts are included: `bin/docker/local.sh` and `bin/docker/release.sh`. These scripts will run the above local / release Docker commands. Using the above Docker commands requires manually mounting the location to which OWG will write output, whereas these helper scripts will take care of it automatically. Use the scripts as you would normally use OWG:
+
+```shell
+./bin/docker/local.sh -o my/wallets/folder -F my-wallet -p solo BTC
+```
+
+**NOTE:** When using the Docker helper scripts, the argument to `-o / --output-file` must always be a directory, not a file path. To control the name of the output file, use the `-F / --output-filename` option instead.
 
 ### Released Build
 
@@ -77,7 +98,7 @@ The default release build command for the tool is:
 ./owg.sh -h
 ```
 
-### Built it Yourself
+### Build it Yourself
 
 1. Install [OpenJDK 16.0.1](https://jdk.java.net/archive/)
 2. Pull the latest code using `git`:
@@ -114,8 +135,10 @@ Usage: <main class> [options] [command] [command options]
       Show this usage details page
     -p, --mnemonic-password
       Password for mnemonic used to generate wallet master key
+    -F, --output-filename
+      Custom filename for the output file (without extension)
     -o, --output-file
-      Directory or path for output files
+      Path for output files (directory path or complete filepath with extension)
       Default: /home/ashelkov/.wallets
     -w, --overwrite
       Overwrite wallet if already exists
@@ -261,7 +284,7 @@ Generate a wallet file for the first 10 Dogecoin addresses using a custom mnemon
 output directory:
 
 ```shell
-# Docker (note that Docker always needs a provided output directory)
+# Docker
 docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -m -p solo -n 10 DOGE
 
 # Release build
@@ -275,14 +298,14 @@ Generate a wallet file for the Bitcoin addresses `m/84'/0'/2'/1'/3'` and `m/84'/
 mnemonic, no password, and a custom output directory:
 
 ```shell
-# Docker (note that Docker always uses a default file name)
-docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest solo -n 2 BTC -a 2 -c 1 -i 3
+# Docker with custom output directory
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -o /app/output solo -n 2 BTC -a 2 -c 1 -i 3
 
 # Release build
-./owg.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account=2 --change=1 --index=3
+./owg.sh -e 128 -o ~/wallets/ solo -n 2 BTC --account=2 --change=1 --index=3
 
 # Local build
-./bin/local.sh -e 128 -o ~/wallets/my-btc-wallet.wal solo -n 2 BTC --account 2 --change 1 -i 3
+./bin/local.sh -e 128 -o ~/wallets/ solo -n 2 BTC --account 2 --change 1 -i 3
 ```
 
 Generate a multi-coin wallet containing the default address for every supported coin using a random 24-word mnemonic, no
@@ -299,27 +322,79 @@ docker run --rm -it --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE
 ./bin/local.sh -f CONSOLE -k -K multi
 ```
 
-## Output
-
-### Docker
-
-If saving to file, Docker always requires an explicit output directory and always uses a default file name for the
-wallet.
-
-Printing to console requires a slightly different Docker command:
+Generate a Bitcoin wallet with a custom filename:
 
 ```shell
-docker run --rm --entrypoint ./bin/release.sh ashelkov/owg:latest -f CONSOLE [options]
+# Docker
+docker run --rm -it -v /home/user/wallets/:/app/output/:rw ashelkov/owg:latest -F my-bitcoin-wallet solo BTC
+
+# Release build
+./owg.sh -F my-bitcoin-wallet solo BTC
+
+# Local build
+./bin/local.sh -F my-bitcoin-wallet solo BTC
 ```
 
-### Release and Local Builds
+## Output File Options
 
-When saving to a file, if no custom output location is specified then the tool will write the wallet to the default
-wallet directory. The name of the file will be `{coin}.{ext}`, where:
-- `{coin}` is the cryptocurrency code (for single-coin wallets) or `multi` (for a multi-coin wallet)
-- `{ext}` is the file extension of the output type
+There are three flexible ways to specify where wallet files are saved:
 
-The default wallet directory is determined by the operating system:
-- Linux: `$HOME/.wallets/`
-- MacOS: `$HOME/Library/Wallets/`
-- Windows: `%APPDATA%\`
+### 1. Specify a Directory
+
+Use the `-o/--output-file` flag to specify a directory where the wallet file will be saved:
+
+```shell
+-o ~/wallets/
+```
+
+The filename will be automatically generated based on the coin type (e.g., `BTC.wal`, `multi.wal`), or you can customize it with the `-F` flag.
+
+### 2. Specify a Custom Filename 
+
+Use the `-F/--output-filename` flag to specify just the filename (without extension):
+
+```shell
+-F my-custom-wallet
+```
+
+This will save the file with your custom name in the default directory for your operating system.
+
+### 3. Specify a Complete File Path
+
+You can now provide a complete path including the filename and extension with the `-o` flag:
+
+```shell
+-o ~/wallets/my-bitcoin-2025.wal
+```
+
+The application will recognize this as a complete file path and use it as is.
+
+### 4. Combine Directory and Custom Filename
+
+You can combine the `-o` and `-F` flags to specify both the directory and filename:
+
+```shell
+-o ~/wallets/ -F my-custom-wallet
+```
+
+This would save the file as `~/wallets/my-custom-wallet.wal`.
+
+### Docker Simplified Usage
+
+When using Docker, the path handling has been improved so you don't need to worry about matching paths exactly. Just make sure your volume is mounted correctly:
+
+```shell
+docker run --rm -it -v /host/path:/app/output/:rw ashelkov/owg:latest -F my-wallet solo BTC
+```
+
+This will automatically save the file to `/host/path/my-wallet.wal` on your host machine.
+
+### Default Behavior
+
+If no output options are specified, the default behavior is to save the file in the OS-specific default wallet directory with the coin name as the filename:
+
+- Linux: `$HOME/.wallets/{coin}.wal`
+- MacOS: `$HOME/Library/Wallets/{coin}.wal`
+- Windows: `%APPDATA%\Wallets\{coin}.wal`
+
+Where `{coin}` is the cryptocurrency code (for single-coin wallets) or `multi` (for a multi-coin wallet).

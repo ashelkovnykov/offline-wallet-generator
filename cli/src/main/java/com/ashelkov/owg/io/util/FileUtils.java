@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
@@ -114,9 +115,24 @@ public class FileUtils {
     }
 
     /**
+     * Determines if a path string likely contains a filename with an extension.
+     * 
+     * @param path The path to check
+     * @return true if the path appears to end with a filename.extension
+     */
+    private static boolean hasFileExtension(Path path) {
+        String pathStr = path.toString();
+        String fileName = path.getFileName().toString();
+        
+        // Check if filename contains a dot that's not at the start (hidden files)
+        return fileName.indexOf(FILE_DELIMITER) > 0;
+    }
+
+    /**
      * Resolve a path to a file:
-     *  - If given a file path, return the path
+     *  - If given a file path that already has an extension, return it unchanged
      *  - If given a directory path, append the file name and file extension to the path
+     *  - If given a path without an extension, treat it as a filename and add the extension
      *
      * @param path Path to file/directory
      * @param fileName File name, if path doesn't resolve to file
@@ -124,12 +140,25 @@ public class FileUtils {
      * @return Path to file
      */
     public static Path resolvePath(Path path, String fileName, String fileExtension) {
-
+        // If it's a directory, append the filename and extension
         if (Files.isDirectory(path)) {
             return path.resolve(String.join(FILE_DELIMITER, fileName, fileExtension));
         }
-
-        return path;
+        
+        // If the path already includes a filename with extension, return it unchanged
+        if (hasFileExtension(path)) {
+            return path;
+        }
+        
+        // Otherwise, assume it's a filename without extension and add the extension
+        Path parentDir = path.getParent();
+        if (parentDir == null) {
+            // No parent directory specified, use the filename directly
+            return Paths.get(String.join(FILE_DELIMITER, path.toString(), fileExtension));
+        }
+        
+        // Construct with parent directory and filename with extension
+        return parentDir.resolve(String.join(FILE_DELIMITER, path.getFileName().toString(), fileExtension));
     }
 
     private FileUtils() {}

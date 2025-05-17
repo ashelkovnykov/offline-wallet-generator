@@ -1,21 +1,37 @@
 # syntax=docker/dockerfile:1
 
-FROM ubuntu:20.04
+# Build stage
+FROM ubuntu:20.04 AS builder
 WORKDIR /app
 
-RUN apt update
-RUN DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
-RUN apt install -y git
-RUN apt install -y openjdk-16-jdk
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata && \
+    apt install -y openjdk-16-jdk
 
-RUN git clone https://github.com/ashelkovnykov/offline-wallet-generator.git
-RUN mkdir output
+# Copy local source code instead of cloning from repo
+COPY . /app/offline-wallet-generator/
+WORKDIR /app/offline-wallet-generator/
 
-RUN pwd
+# Make sure build script is executable
+RUN chmod +x ./gradlew.sh
 
-WORKDIR ./offline-wallet-generator/
+# Build the application
 RUN ./gradlew.sh clean build
 
-ENTRYPOINT ["./bin/release.sh", "-o", "../output/"]
-CMD ["--help"]
+# Runtime stage
+FROM eclipse-temurin:17-jre
+WORKDIR /app
 
+# Install runtime dependencies only
+RUN apt update && \
+    DEBIAN_FRONTEND=noninteractive TZ=Etc/UTC apt -y install tzdata
+
+# Copy only the necessary files from the builder stage
+COPY --from=builder /app/offline-wallet-generator/docker/entrypoint.sh ./bin/
+COPY --from=builder /app/offline-wallet-generator/build/cli/libs/cli.jar ./bin/
+RUN chmod +x ./bin/entrypoint.sh
+
+ENTRYPOINT ["./bin/entrypoint.sh"]
+
+# Default to showing help if no arguments are provided
+CMD ["--help"]
